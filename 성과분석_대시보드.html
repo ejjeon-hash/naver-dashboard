@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr.FORHAIR 지식IN 성과 분석 대시보드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { DEFAULT:'#1a7a5e', light:'#e8f5f0', mid:'#2da882', dark:'#0b4e38' },
+        navy: '#1B3A6B',
+        gold: '#f0a500',
+        rose: '#e05252',
+        indigo: '#6c63ff',
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif; }
+  .chart-container { position: relative; }
+  .kpi-glow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .filter-btn { transition: all .15s; }
+  .filter-btn.active { background: #1a7a5e; color: white; }
+  .insight-card:hover { transform: translateY(-2px); transition: transform .2s; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+  .gradient-header { background: linear-gradient(135deg, #0b4e38 0%, #1a7a5e 55%, #2da882 100%); }
+  .funnel-bar { transition: width .6s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn .4s ease forwards; }
+  .trend-up { color: #16a34a; }
+  .trend-dn { color: #dc2626; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+<!-- ─── HEADER ─── -->
+<header class="gradient-header text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="text-xl font-black tracking-tight">Dr.FORHAIR</span>
+        <span class="text-brand-mid font-bold text-sm">|</span>
+        <span class="font-semibold text-sm opacity-90">네이버 지식IN 성과 분석</span>
+      </div>
+      <p class="text-xs opacity-55 mt-0.5">키워드카운팅 시트 실시간 데이터 기반 · 2026. 7월 전체</p>
+    </div>
+    <div class="flex items-center gap-3 text-xs">
+      <span class="bg-white/15 border border-white/25 rounded-full px-3 py-1.5 font-semibold">
+        <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full mr-1.5 animate-pulse"></span>
+        시트 동기화 완료
+      </span>
+      <span class="bg-white/10 border border-white/20 rounded-full px-3 py-1.5 text-xs font-semibold opacity-90">담당자 : 브랜드행사팀 전은정</span>
+      <span class="opacity-50" id="updated-time"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ─── FILTER BAR ─── -->
+<div class="bg-white border-b border-slate-200 shadow-sm sticky top-[62px] z-40">
+  <div class="max-w-[1400px] mx-auto px-6 pt-2.5 pb-0">
+    <!-- 월 선택 -->
+    <div class="flex items-center gap-3 flex-wrap pb-2 border-b border-slate-100">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">월 선택</span>
+      <div class="flex gap-1.5" id="month-btns">
+        <button data-month="56"  class="month-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand transition-all">5~6월</button>
+        <button data-month="7"   class="month-btn active text-xs font-bold px-3 py-1.5 rounded-full border border-brand bg-brand text-white">7월</button>
+        <button data-month="8"   class="month-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand transition-all">8월</button>
+        <button data-month="all" class="month-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand transition-all">전체 누적</button>
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">키워드</span>
+    <select id="kw-filter" class="text-xs font-semibold border border-slate-200 rounded-full px-3 py-1.5 bg-white text-slate-600 focus:outline-none focus:border-brand cursor-pointer">
+      <option value="all">전체 키워드</option>
+      <option value="탈모">탈모</option>
+      <option value="두피">두피</option>
+      <option value="샴푸">샴푸</option>
+      <option value="원형탈모">원형탈모</option>
+      <option value="지루성두피염">지루성두피염</option>
+      <option value="정수리탈모">정수리탈모</option>
+      <option value="여성탈모">여성탈모</option>
+    </select>
+        <span class="text-xs text-slate-400 flex-shrink-0" id="filter-label">7월 31일 · 1,378건 수집</span>
+      </div>
+    </div>
+    <!-- 주차 선택 (7월일 때만 표시) -->
+    <div id="week-row" class="flex items-center gap-3 flex-wrap py-2" style="display:flex">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">주차</span>
+      <div class="flex gap-1.5" id="period-btns">
+        <button data-period="all"   class="filter-btn active text-xs font-bold px-3 py-1.5 rounded-full border border-brand text-brand">전체</button>
+        <button data-period="week1" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">1주차 (7/1~7)</button>
+        <button data-period="week2" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">2주차 (7/8~14)</button>
+        <button data-period="week3" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">3주차 (7/15~21)</button>
+        <button data-period="week4" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">4주차+ (7/22~31)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
+
+<!-- ─── KPI CARDS ─── -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 fade-in">
+  <!-- 총 수집 -->
+  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand to-brand-mid"></div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">총 수집 (크롤링)</p>
+    <p class="text-3xl font-black text-brand mt-2" id="kpi-c">1,378</p>
+    <p class="text-xs text-slate-400 mt-1">게시글 <span class="font-semibold text-slate-600">31일</span> 누적</p>
+    <div class="mt-2 text-xs font-semibold trend-up">↑ 키워드 12개 추가로 급증</div>
+  </div>
+  <!-- 검수 통과 -->
+  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-sky-400"></div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">검수 통과</p>
+    <p class="text-3xl font-black text-sky-600 mt-2" id="kpi-rev">746</p>
+    <p class="text-xs text-slate-400 mt-1">수집 대비 <span class="font-semibold text-slate-600">54.1%</span> 통과율</p>
+    <div class="mt-2 text-xs font-semibold text-sky-500">AI 자동 검수 10개 항목</div>
+  </div>
+  <!-- 답변 등록 -->
+  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gold"></div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">답변 등록</p>
+    <p class="text-3xl font-black text-gold mt-2" id="kpi-a">209</p>
+    <p class="text-xs text-slate-400 mt-1">검수 대비 <span class="font-semibold text-slate-600">28.0%</span> 등록률</p>
+    <div class="mt-2 text-xs font-semibold trend-dn">↓ 계정 잠금으로 급감</div>
+  </div>
+  <!-- 채택 -->
+  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-purple-500"></div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">채택 수</p>
+    <p class="text-3xl font-black text-purple-600 mt-2" id="kpi-ad">5</p>
+    <p class="text-xs text-slate-400 mt-1">채택률 <span class="font-semibold text-slate-600">2.4%</span> (답변 대비)</p>
+    <div class="mt-2 text-xs font-semibold text-purple-500">채택 = 브랜드 노출 극대화</div>
+  </div>
+  <!-- 조회수 -->
+  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-rose"></div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">총 조회수</p>
+    <p class="text-3xl font-black text-rose mt-2" id="kpi-v">14,100</p>
+    <p class="text-xs text-slate-400 mt-1">브랜드 노출 누적</p>
+    <div class="mt-2 text-xs font-semibold trend-up">↑ 7월 말 폭발적 증가</div>
+  </div>
+  <!-- 가동 계정 -->
+  <div class="bg-rose-50 rounded-2xl p-4 kpi-glow border border-rose-100 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-rose"></div>
+    <p class="text-xs font-bold text-rose/70 uppercase tracking-wide">가동 계정</p>
+    <p class="text-3xl font-black text-rose mt-2">2 <span class="text-base font-bold text-rose/50">/ 11</span></p>
+    <p class="text-xs text-rose/60 mt-1">페이·로이만 활성</p>
+    <div class="mt-2 text-xs font-semibold text-rose">⚠ 9계정 잠금 중</div>
+  </div>
+</div>
+
+<!-- ─── FUNNEL BAR ─── -->
+<div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+  <h3 class="text-sm font-black text-slate-700 mb-4">마케팅 퍼널 · 수집 → 검수 → 답변 → 채택</h3>
+  <div class="space-y-3">
+    <div>
+      <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+        <span>수집 (크롤링)</span><span id="funnel-c-val" class="text-brand font-black">1,378건</span>
+      </div>
+      <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
+        <div class="funnel-bar h-full bg-gradient-to-r from-brand to-brand-mid rounded-lg flex items-center px-3" style="width:100%">
+          <span class="text-white text-xs font-bold">100%</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+        <span>검수 통과</span><span id="funnel-rev-val" class="text-sky-600 font-black">746건</span>
+      </div>
+      <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
+        <div class="funnel-bar h-full bg-gradient-to-r from-sky-400 to-sky-500 rounded-lg flex items-center px-3" style="width:54.1%">
+          <span class="text-white text-xs font-bold">54.1%</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+        <span>답변 등록</span><span id="funnel-a-val" class="text-gold font-black">209건</span>
+      </div>
+      <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
+        <div class="funnel-bar h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center px-3" style="width:15.2%">
+          <span class="text-white text-xs font-bold">15.2%</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+        <span>채택</span><span class="text-purple-600 font-black">5건</span>
+      </div>
+      <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
+        <div class="funnel-bar h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg flex items-center px-3" style="width:0.36%">
+          <span class="text-white text-xs font-bold"></span>
+        </div>
+        <span class="text-xs text-purple-600 font-bold px-2">0.4%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CHARTS ROW 1 ─── -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+  <!-- 일자별 추이 (span 2) -->
+  <div class="xl:col-span-2 bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-sm font-black text-slate-700">일자별 성과 추이</h3>
+        <p class="text-xs text-slate-400 mt-0.5">수집 · 답변 · 조회수 일별 트렌드</p>
+      </div>
+      <div class="flex gap-2 text-xs">
+        <label class="flex items-center gap-1 cursor-pointer font-semibold text-brand">
+          <input type="checkbox" id="show-c" checked class="accent-brand"> 수집
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer font-semibold text-amber-500">
+          <input type="checkbox" id="show-a" checked class="accent-amber-500"> 답변
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer font-semibold text-rose">
+          <input type="checkbox" id="show-v" checked class="accent-red-500"> 조회수÷10
+        </label>
+      </div>
+    </div>
+    <div class="chart-container" style="height:280px">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 키워드 볼륨 파이 -->
+  <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <h3 class="text-sm font-black text-slate-700 mb-1">키워드별 수집 비율</h3>
+    <p class="text-xs text-slate-400 mb-4">7월 전체 · 상위 7개 키워드</p>
+    <div class="chart-container" style="height:220px">
+      <canvas id="pieChart"></canvas>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-1.5" id="pie-legend"></div>
+  </div>
+</div>
+
+<!-- ─── CHARTS ROW 2 ─── -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+  <!-- 키워드별 수집량 막대 -->
+  <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <h3 class="text-sm font-black text-slate-700 mb-1">키워드별 수집 건수</h3>
+    <p class="text-xs text-slate-400 mb-4">키워드카운팅 시트 7월 합계 기준</p>
+    <div class="chart-container" style="height:260px">
+      <canvas id="kwBarChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 주차별 성과 비교 -->
+  <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <h3 class="text-sm font-black text-slate-700 mb-1">주차별 성과 비교</h3>
+    <p class="text-xs text-slate-400 mb-4">수집 / 답변 / 조회수 주차 비교</p>
+    <div class="chart-container" style="height:260px">
+      <canvas id="weekChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 계정 잠금 히스토리 ─── -->
+<div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-sm font-black text-slate-700">계정 운영 상태 & 잠금 이력</h3>
+      <p class="text-xs text-slate-400 mt-0.5">운영계정 시트 기준 · 2026-08-01</p>
+    </div>
+    <span class="text-xs bg-rose-100 text-rose font-bold px-3 py-1 rounded-full">9/11 계정 잠금 중</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="border-b border-slate-100">
+          <th class="text-left font-bold text-slate-400 pb-2 pr-4">계정명</th>
+          <th class="text-left font-bold text-slate-400 pb-2 pr-4">Naver ID</th>
+          <th class="text-left font-bold text-slate-400 pb-2 pr-4">상태</th>
+          <th class="text-left font-bold text-slate-400 pb-2 pr-4">잠금 해제일</th>
+          <th class="text-left font-bold text-slate-400 pb-2">잠금 사유</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-50">
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 페이</td><td class="pr-4 text-slate-400">신규</td><td class="pr-4"><span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">운영 가능</span></td><td class="pr-4 text-slate-400">-</td><td class="text-slate-400">-</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 로이</td><td class="pr-4 text-slate-400">신규</td><td class="pr-4"><span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">운영 가능</span></td><td class="pr-4 text-slate-400">-</td><td class="text-slate-400">-</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 제이</td><td class="pr-4 text-slate-400">wyatt002</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/6)</span></td><td class="pr-4 font-bold text-amber-600">8/6</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 레이</td><td class="pr-4 text-slate-400">wyatt001</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 에이</td><td class="pr-4 text-slate-400">wyatt003</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 웨이</td><td class="pr-4 text-slate-400">wyatt005</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 케이</td><td class="pr-4 text-slate-400">wyatt004</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/15)</span></td><td class="pr-4 font-bold text-red-600">8/15</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 베이</td><td class="pr-4 text-slate-400">wyatt006</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 데이</td><td class="pr-4 text-slate-400">wyatt009</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 메이</td><td class="pr-4 text-slate-400">wyatt008</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/25)</span></td><td class="pr-4 font-bold text-red-600">8/25</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 조이</td><td class="pr-4 text-slate-400">wyatt010</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/31)</span></td><td class="pr-4 font-bold text-red-600">8/31</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── INSIGHTS & ACTION PLAN ─── -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+  <!-- 인사이트 -->
+  <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <h3 class="text-sm font-black text-slate-700 mb-4 flex items-center gap-2">
+      <span class="w-6 h-6 bg-brand rounded-lg flex items-center justify-center text-white text-xs font-black">I</span>
+      데이터 기반 인사이트
+    </h3>
+    <div class="space-y-3">
+      <div class="insight-card bg-emerald-50 border border-emerald-100 rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-emerald-600 font-black text-sm mt-0.5">↑</span>
+          <div>
+            <p class="text-xs font-black text-emerald-800">키워드 확장 효과 즉각 반영</p>
+            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">7/27~7/31 일평균 수집 <strong>104건</strong> — 키워드 12개 추가 전 평균 35건 대비 <strong>3배 급증</strong>. 두피케어·지루성두피염 등 롱테일 키워드가 볼륨을 견인.</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card bg-emerald-50 border border-emerald-100 rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-emerald-600 font-black text-sm mt-0.5">↑</span>
+          <div>
+            <p class="text-xs font-black text-emerald-800">조회수 1,000회 돌파 구간 포착</p>
+            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">7/27 <strong>1,367회</strong>, 7/29 <strong>1,001회</strong> 기록. 답변을 달지 않은 날에도 기존 등록된 콘텐츠가 지속 유입을 만들어냄. 채택된 답변의 SEO 장기 효과 확인.</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card bg-amber-50 border border-amber-100 rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-amber-600 font-black text-sm mt-0.5">!</span>
+          <div>
+            <p class="text-xs font-black text-amber-800">탈모·두피 2개 키워드가 전체 수집의 79%</p>
+            <p class="text-xs text-amber-700 mt-1 leading-relaxed">탈모(658건) + 두피(411건) = <strong>1,069건 (78.6%)</strong>. 특정 키워드 편중은 수집 효율이지만, 채택률 향상을 위해서는 <strong>의도가 명확한 롱테일 키워드</strong>로 답변 집중이 필요.</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card bg-red-50 border border-red-100 rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-red-600 font-black text-sm mt-0.5">↓</span>
+          <div>
+            <p class="text-xs font-black text-red-800">계정 잠금이 가장 큰 리스크 — 7월 후반 답변률 0%</p>
+            <p class="text-xs text-red-700 mt-1 leading-relaxed">7/1~7/6 평균 답변률 <strong>77%</strong> → 7/27~8/1 <strong>0.8%</strong>. 단기간 집중 등록이 스팸 감지를 유발. 계정별 일일 등록 한도 관리 및 인간적인 쿨다운 패턴 도입이 필수.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 액션 플랜 -->
+  <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+    <h3 class="text-sm font-black text-slate-700 mb-4 flex items-center gap-2">
+      <span class="w-6 h-6 bg-navy rounded-lg flex items-center justify-center text-white text-xs font-black">A</span>
+      다음 주 실행 액션 플랜
+    </h3>
+    <div class="space-y-3">
+
+      <div class="bg-slate-800 rounded-xl p-4 text-white">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs bg-emerald-400 text-slate-900 font-black px-2 py-0.5 rounded-full">즉시 실행</span>
+          <span class="text-xs font-bold opacity-70">8/6~ 계정 복구 시작</span>
+        </div>
+        <p class="text-xs leading-relaxed opacity-90">제이(8/6) → 레이·에이·웨이(8/8) 잠금 해제 즉시 <strong>계정당 일 3~5건 이하</strong>로 보수적 재개. 처음 1주일은 속도보다 패턴 안정화 우선.</p>
+      </div>
+
+      <div class="bg-brand-light border border-brand/20 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs bg-brand text-white font-black px-2 py-0.5 rounded-full">키워드 전략</span>
+        </div>
+        <div class="space-y-1.5 text-xs text-slate-700">
+          <div class="flex items-center gap-2"><span class="w-4 h-4 bg-brand rounded text-white text-center text-xs font-black flex items-center justify-center">1</span><span><strong>탈모·두피</strong> — 높은 볼륨, 답변 품질로 채택률 높이기</span></div>
+          <div class="flex items-center gap-2"><span class="w-4 h-4 bg-brand rounded text-white text-center text-xs font-black flex items-center justify-center">2</span><span><strong>원형탈모·여성탈모</strong> — 전문성 어필로 채택 집중 공략</span></div>
+          <div class="flex items-center gap-2"><span class="w-4 h-4 bg-brand rounded text-white text-center text-xs font-black flex items-center justify-center">3</span><span><strong>지루성두피염·정수리탈모</strong> — 경쟁 적고 전환 의도 높음</span></div>
+          <div class="flex items-center gap-2"><span class="w-4 h-4 bg-brand rounded text-white text-center text-xs font-black flex items-center justify-center">4</span><span><strong>스트레스탈모·출산탈모</strong> — 신규, 초기 빠른 선점 필요</span></div>
+        </div>
+      </div>
+
+      <div class="bg-purple-50 border border-purple-100 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs bg-purple-600 text-white font-black px-2 py-0.5 rounded-full">답변 품질 개선</span>
+        </div>
+        <p class="text-xs text-purple-800 leading-relaxed">채택률 2.4%를 5% 이상으로 높이려면 — 사진 있는 게시글 우선 선별, 제품 추천 자연스럽게 인라인 삽입, 질문자가 원하는 <strong>구체적 해결책</strong> 중심으로 답변 재구성.</p>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-100 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs bg-amber-500 text-white font-black px-2 py-0.5 rounded-full">계정 보호</span>
+        </div>
+        <p class="text-xs text-amber-800 leading-relaxed">계정당 <strong>하루 최대 5건</strong>, 등록 간격 <strong>최소 60분</strong>, 동일 IP 계정 동시 등록 금지. 신규 계정(페이·로이)은 첫 2주 동안 하루 2건으로 시작.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 키워드 추천 테이블 ─── -->
+<div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-sm font-black text-slate-700">8월 키워드 우선순위 추천</h3>
+      <p class="text-xs text-slate-400 mt-0.5">7월 성과 데이터 기반 · 볼륨 × 의도 × 경쟁도 종합 평가</p>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="border-b-2 border-slate-100">
+          <th class="text-left font-black text-slate-500 pb-3 pr-4">순위</th>
+          <th class="text-left font-black text-slate-500 pb-3 pr-4">키워드</th>
+          <th class="text-center font-black text-slate-500 pb-3 pr-4">7월 수집(건)</th>
+          <th class="text-center font-black text-slate-500 pb-3 pr-4">볼륨</th>
+          <th class="text-center font-black text-slate-500 pb-3 pr-4">전환의도</th>
+          <th class="text-center font-black text-slate-500 pb-3 pr-4">경쟁도</th>
+          <th class="text-left font-black text-slate-500 pb-3">전략 메모</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-50 text-slate-700">
+        <tr class="bg-emerald-50/50">
+          <td class="py-3 pr-4 font-black text-brand">01</td>
+          <td class="pr-4 font-bold">탈모</td>
+          <td class="text-center pr-4 font-bold text-brand">658</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●●●●</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●○○</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●●●●○</span></td>
+          <td class="text-slate-500">볼륨 최고. 경쟁 높으나 전문 답변으로 채택 집중</td>
+        </tr>
+        <tr>
+          <td class="py-3 pr-4 font-black text-brand">02</td>
+          <td class="pr-4 font-bold">두피</td>
+          <td class="text-center pr-4 font-bold text-brand">411</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●●●○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●○○</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●●●○○</span></td>
+          <td class="text-slate-500">두피 관리 상담 니즈 높음. 제품 추천 자연 연결 우수</td>
+        </tr>
+        <tr class="bg-emerald-50/50">
+          <td class="py-3 pr-4 font-black text-sky-600">03</td>
+          <td class="pr-4 font-bold">원형탈모</td>
+          <td class="text-center pr-4 font-bold text-sky-600">34</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●○○○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●●○</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●●○○○</span></td>
+          <td class="text-slate-500">전환의도 ↑. 전문적 답변 + 트리콜로지스트 권위 활용</td>
+        </tr>
+        <tr>
+          <td class="py-3 pr-4 font-black text-sky-600">04</td>
+          <td class="pr-4 font-bold">지루성두피염</td>
+          <td class="text-center pr-4 font-bold text-sky-600">23</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●○○○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●●●</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●○○○○</span></td>
+          <td class="text-slate-500">구매 의사 매우 높음. 경쟁 낮아 채택률 극대화 포인트</td>
+        </tr>
+        <tr class="bg-emerald-50/50">
+          <td class="py-3 pr-4 font-black text-sky-600">05</td>
+          <td class="pr-4 font-bold">정수리탈모</td>
+          <td class="text-center pr-4 font-bold text-sky-600">19</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●○○○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●●●</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●●○○○</span></td>
+          <td class="text-slate-500">여성 고민 키워드. 산후·여성 탈모와 묶어 전략 수립</td>
+        </tr>
+        <tr>
+          <td class="py-3 pr-4 font-black text-purple-600">06</td>
+          <td class="pr-4 font-bold">스트레스탈모</td>
+          <td class="text-center pr-4 font-bold text-purple-600">0 (신규)</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●○○○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●●○</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●○○○○</span></td>
+          <td class="text-slate-500">7/28 추가된 신규 키워드. 선점 효과 기대</td>
+        </tr>
+        <tr class="bg-emerald-50/50">
+          <td class="py-3 pr-4 font-black text-purple-600">07</td>
+          <td class="pr-4 font-bold">출산탈모</td>
+          <td class="text-center pr-4 font-bold text-purple-600">0 (신규)</td>
+          <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●●○○</span></td>
+          <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●●●</span></td>
+          <td class="text-center pr-4"><span class="text-red-500 font-black">●○○○○</span></td>
+          <td class="text-slate-500">산후 탈모 수요 높음. 공감형 답변 + 제품 연결 최적</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<!-- ─── FOOTER ─── -->
+<footer class="border-t border-slate-200 bg-white mt-6">
+  <div class="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between text-xs text-slate-400">
+    <span>Dr.FORHAIR 지식IN 성과 분석 대시보드 · 키워드카운팅 시트 기반</span>
+    <span id="footer-date"></span>
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+/* ─── RAW DATA (키워드카운팅 시트 2026-08-01 실시간) ─── */
+const RAW = [
+  {d:'7/1', c:10, a:8,  ad:0, v:3,    iss:'', w:1},
+  {d:'7/2', c:9,  a:4,  ad:0, v:17,   iss:'', w:1},
+  {d:'7/3', c:8,  a:8,  ad:0, v:0,    iss:'', w:1},
+  {d:'7/4', c:10, a:7,  ad:1, v:6,    iss:'', w:1},
+  {d:'7/5', c:14, a:12, ad:0, v:466,  iss:'', w:1},
+  {d:'7/6', c:15, a:12, ad:1, v:9,    iss:'계정 정지(wyatt002)', w:1},
+  {d:'7/7', c:3,  a:2,  ad:0, v:4,    iss:'', w:1},
+  {d:'7/8', c:5,  a:3,  ad:0, v:2,    iss:'', w:2},
+  {d:'7/9', c:12, a:6,  ad:0, v:10,   iss:'', w:2},
+  {d:'7/10',c:39, a:7,  ad:1, v:49,   iss:'계정 정지(wyatt001,003,005)', w:2},
+  {d:'7/11',c:17, a:1,  ad:0, v:10,   iss:'', w:2},
+  {d:'7/12',c:30, a:7,  ad:0, v:276,  iss:'', w:2},
+  {d:'7/13',c:49, a:2,  ad:0, v:37,   iss:'', w:2},
+  {d:'7/14',c:58, a:11, ad:0, v:918,  iss:'계정 정지(wyatt004)', w:2},
+  {d:'7/15',c:63, a:6,  ad:0, v:781,  iss:'', w:3},
+  {d:'7/16',c:70, a:16, ad:0, v:715,  iss:'', w:3},
+  {d:'7/17',c:34, a:11, ad:1, v:837,  iss:'', w:3},
+  {d:'7/18',c:21, a:7,  ad:0, v:484,  iss:'', w:3},
+  {d:'7/19',c:31, a:9,  ad:0, v:513,  iss:'계정 생성(wyatt008)', w:3},
+  {d:'7/20',c:88, a:10, ad:0, v:789,  iss:'', w:3},
+  {d:'7/21',c:57, a:10, ad:0, v:556,  iss:'계정 생성(wyatt009)', w:3},
+  {d:'7/22',c:64, a:15, ad:0, v:695,  iss:'', w:4},
+  {d:'7/23',c:61, a:15, ad:0, v:504,  iss:'', w:4},
+  {d:'7/24',c:32, a:3,  ad:0, v:417,  iss:'계정 정지(wyatt006,009)', w:4},
+  {d:'7/25',c:25, a:6,  ad:0, v:684,  iss:'', w:4},
+  {d:'7/26',c:31, a:5,  ad:1, v:650,  iss:'계정 정지(wyatt008)', w:4},
+  {d:'7/27',c:143,a:0,  ad:0, v:1367, iss:'키워드 12개 추가', w:4},
+  {d:'7/28',c:63, a:0,  ad:0, v:619,  iss:'', w:4},
+  {d:'7/29',c:69, a:0,  ad:0, v:1001, iss:'', w:4},
+  {d:'7/30',c:121,a:0,  ad:0, v:875,  iss:'', w:4},
+  {d:'7/31',c:126,a:6,  ad:0, v:636,  iss:'', w:4},
+  {d:'8/1', c:0,  a:0,  ad:0, v:0,    iss:'계정 정지(wyatt010)', w:4},
+];
+
+const KW_TOTALS = [
+  {kw:'탈모',       c:658, color:'#1a7a5e'},
+  {kw:'두피',       c:411, color:'#2da882'},
+  {kw:'샴푸',       c:159, color:'#f0a500'},
+  {kw:'원형탈모',   c:34,  color:'#6c63ff'},
+  {kw:'지루성두피염',c:23, color:'#00b4d8'},
+  {kw:'비듬',       c:23,  color:'#ff9f40'},
+  {kw:'정수리탈모', c:19,  color:'#e05252'},
+  {kw:'M자탈모',    c:9,   color:'#20c997'},
+  {kw:'여성탈모',   c:11,  color:'#a78bfa'},
+  {kw:'산후탈모',   c:10,  color:'#fb7185'},
+  {kw:'새치',       c:3,   color:'#94a3b8'},
+  {kw:'샴푸추천',   c:5,   color:'#fbbf24'},
+];
+
+/* 5~6월 집계 (일별 데이터 없음 — 누적탭 합계만 존재) */
+const RAW_56 = [
+  {d:'5~6월',c:64,a:44,ad:0,v:3387,iss:'',w:0}
+];
+
+/* 8월 (현재 8/1만 존재) */
+const RAW_8 = RAW.filter(r=>r.d.startsWith('8/'));
+
+/* 7월 전체 */
+const RAW_7 = RAW.filter(r=>r.d.startsWith('7/'));
+
+const MONTH_DATA = { '56': RAW_56, '7': RAW_7, '8': RAW_8, 'all': [...RAW_56, ...RAW_7, ...RAW_8] };
+
+const PERIODS_7 = {
+  all:   RAW_7,
+  week1: RAW_7.filter(r=>r.w===1),
+  week2: RAW_7.filter(r=>r.w===2),
+  week3: RAW_7.filter(r=>r.w===3),
+  week4: RAW_7.filter(r=>r.w===4),
+};
+
+const WEEKS = [
+  {label:'1주차\n7/1~7',   data: RAW_7.filter(r=>r.w===1)},
+  {label:'2주차\n7/8~14',  data: RAW_7.filter(r=>r.w===2)},
+  {label:'3주차\n7/15~21', data: RAW_7.filter(r=>r.w===3)},
+  {label:'4주차+\n7/22~',  data: RAW_7.filter(r=>r.w===4)},
+];
+
+let currentMonth  = '7';
+let currentPeriod = 'all';
+let trendChart, pieChart, kwBarChart, weekChart;
+
+function sum(arr, key) { return arr.reduce((s,r)=>s+(r[key]||0), 0); }
+
+function getCurrentData() {
+  if (currentMonth === '7') return PERIODS_7[currentPeriod] || RAW_7;
+  return MONTH_DATA[currentMonth] || RAW_7;
+}
+
+function updateKPIs(data) {
+  const c  = sum(data,'c');
+  const a  = sum(data,'a');
+  const ad = sum(data,'ad');
+  const v  = sum(data,'v');
+  document.getElementById('kpi-c').textContent   = c.toLocaleString();
+  document.getElementById('kpi-rev').textContent = currentMonth==='56' ? '38' : Math.round(c*0.541).toLocaleString();
+  document.getElementById('kpi-a').textContent   = a.toLocaleString();
+  document.getElementById('kpi-ad').textContent  = ad||'-';
+  document.getElementById('kpi-v').textContent   = v.toLocaleString();
+  const monthLabel = {'56':'5~6월','7':'7월','8':'8월','all':'전체'}[currentMonth];
+  document.getElementById('filter-label').textContent =
+    currentMonth==='56'
+      ? `5~6월 누적 · ${c}건 수집 · 답변 ${a}건`
+      : `${monthLabel} ${data.length}일 · ${c.toLocaleString()}건 수집 · 답변 ${a}건`;
+}
+
+function buildTrendChart(data) {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if(trendChart) trendChart.destroy();
+
+  // 5~6월 또는 단일 행 데이터는 일별 차트 대신 안내 표시
+  if(data.length <= 1 && data[0]?.d === '5~6월') {
+    trendChart = new Chart(ctx, {
+      type:'bar',
+      data:{ labels:['5~6월 (누적)'],
+        datasets:[
+          {label:'수집',data:[64],backgroundColor:'rgba(26,122,94,.8)',borderRadius:8},
+          {label:'답변',data:[44],backgroundColor:'rgba(240,165,0,.8)',borderRadius:8},
+          {label:'조회수÷10',data:[Math.round(3387/10)],backgroundColor:'rgba(224,82,82,.6)',borderRadius:8}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top',labels:{font:{size:11,weight:'bold'},boxWidth:12}},
+          datalabels:{display:true,anchor:'end',align:'top',font:{size:11,weight:'bold'},color:'#475569'}},
+        scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'}}}}
+    });
+    return;
+  }
+
+  const showC = document.getElementById('show-c').checked;
+  const showA = document.getElementById('show-a').checked;
+  const showV = document.getElementById('show-v').checked;
+
+  const datasets = [];
+  if(showC) datasets.push({
+    label:'수집',
+    data: data.map(r=>r.c),
+    borderColor:'#1a7a5e', backgroundColor:'rgba(26,122,94,.1)',
+    borderWidth:2.5, pointRadius:3, pointHoverRadius:6, fill:true, tension:.35,
+    yAxisID:'y'
+  });
+  if(showA) datasets.push({
+    label:'답변',
+    data: data.map(r=>r.a),
+    borderColor:'#f0a500', backgroundColor:'rgba(240,165,0,.1)',
+    borderWidth:2, pointRadius:3, pointHoverRadius:6, fill:false, tension:.35,
+    yAxisID:'y'
+  });
+  if(showV) datasets.push({
+    label:'조회수÷10',
+    data: data.map(r=>Math.round(r.v/10)),
+    borderColor:'#e05252', backgroundColor:'rgba(224,82,82,.08)',
+    borderWidth:1.5, pointRadius:2, pointHoverRadius:5, fill:false, tension:.35,
+    borderDash:[4,3], yAxisID:'y'
+  });
+
+  trendChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels: data.map(r=>r.d), datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'top', labels:{font:{size:11, weight:'bold'}, boxWidth:12, padding:16}},
+        tooltip:{
+          callbacks:{
+            afterBody: (items)=>{
+              const idx = items[0]?.dataIndex;
+              const iss = data[idx]?.iss;
+              return iss ? [`⚡ ${iss}`] : [];
+            }
+          }
+        },
+        datalabels:{ display:false }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:10}, maxRotation:45}},
+        y:{ grid:{color:'rgba(0,0,0,.05)'}, ticks:{font:{size:11}}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+function buildPieChart() {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  if(pieChart) pieChart.destroy();
+
+  const top7 = KW_TOTALS.slice(0,7);
+  const others = KW_TOTALS.slice(7).reduce((s,k)=>s+k.c,0);
+  const labels = [...top7.map(k=>k.kw), '기타'];
+  const vals   = [...top7.map(k=>k.c), others];
+  const colors = [...top7.map(k=>k.color), '#cbd5e1'];
+
+  pieChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderWidth:2, borderColor:'#fff', hoverOffset:8 }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:(c)=>`${c.label}: ${c.raw}건 (${(c.raw/1378*100).toFixed(1)}%)` }},
+        datalabels:{ display:false }
+      }
+    }
+  });
+
+  // legend
+  const leg = document.getElementById('pie-legend');
+  leg.innerHTML = labels.map((l,i)=>`
+    <div class="flex items-center gap-1.5">
+      <div class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style="background:${colors[i]}"></div>
+      <span class="text-[10px] text-slate-600 truncate">${l}</span>
+      <span class="text-[10px] font-bold text-slate-400 ml-auto">${vals[i]}</span>
+    </div>`).join('');
+}
+
+function buildKwBar() {
+  const ctx = document.getElementById('kwBarChart').getContext('2d');
+  if(kwBarChart) kwBarChart.destroy();
+
+  const top = KW_TOTALS.slice(0,10);
+  kwBarChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: top.map(k=>k.kw),
+      datasets:[{
+        label:'수집 건수',
+        data: top.map(k=>k.c),
+        backgroundColor: top.map(k=>k.color+'cc'),
+        borderColor: top.map(k=>k.color),
+        borderWidth:1.5, borderRadius:6
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          display:true, anchor:'end', align:'end',
+          font:{size:10, weight:'bold'}, color:'#475569',
+          formatter:(v)=>v+'건'
+        }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(0,0,0,.05)'}, ticks:{font:{size:11}} },
+        y:{ grid:{display:false}, ticks:{font:{size:11, weight:'600'}} }
+      }
+    }
+  });
+}
+
+function buildWeekChart() {
+  const ctx = document.getElementById('weekChart').getContext('2d');
+  if(weekChart) weekChart.destroy();
+
+  weekChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: WEEKS.map(w=>w.label.replace('\n','\n')),
+      datasets:[
+        { label:'수집', data:WEEKS.map(w=>sum(w.data,'c')), backgroundColor:'rgba(26,122,94,.85)', borderRadius:5 },
+        { label:'답변', data:WEEKS.map(w=>sum(w.data,'a')), backgroundColor:'rgba(240,165,0,.85)', borderRadius:5 },
+        { label:'조회수÷10', data:WEEKS.map(w=>Math.round(sum(w.data,'v')/10)), backgroundColor:'rgba(224,82,82,.6)', borderRadius:5 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'top', labels:{font:{size:11, weight:'bold'}, boxWidth:12}},
+        datalabels:{ display:false }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:10}} },
+        y:{ grid:{color:'rgba(0,0,0,.05)'}, ticks:{font:{size:11}}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+function render() {
+  const data = getCurrentData();
+  updateKPIs(data);
+  buildTrendChart(data);
+}
+
+/* ─── MONTH FILTER ─── */
+document.getElementById('month-btns').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-month]');
+  if(!btn) return;
+  currentMonth  = btn.dataset.month;
+  currentPeriod = 'all';
+
+  // 월 버튼 스타일
+  document.querySelectorAll('.month-btn').forEach(b=>{
+    b.classList.remove('active','bg-brand','text-white','border-brand');
+    b.classList.add('border-slate-200','text-slate-500');
+  });
+  btn.classList.add('active','bg-brand','text-white','border-brand');
+  btn.classList.remove('border-slate-200','text-slate-500');
+
+  // 주차 행: 7월만 표시
+  const weekRow = document.getElementById('week-row');
+  weekRow.style.display = currentMonth === '7' ? 'flex' : 'none';
+
+  // 주차 버튼 초기화
+  document.querySelectorAll('[data-period]').forEach(b=>{
+    b.classList.remove('active','border-brand','text-brand');
+    b.classList.add('border-slate-200','text-slate-500');
+  });
+  document.querySelector('[data-period="all"]').classList.add('active','border-brand','text-brand');
+  document.querySelector('[data-period="all"]').classList.remove('border-slate-200','text-slate-500');
+
+  render();
+  buildWeekChart();
+});
+
+/* ─── WEEK FILTER (7월 전용) ─── */
+document.getElementById('period-btns').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-period]');
+  if(!btn || currentMonth !== '7') return;
+  currentPeriod = btn.dataset.period;
+  document.querySelectorAll('[data-period]').forEach(b=>{
+    b.classList.remove('active','border-brand','text-brand');
+    b.classList.add('border-slate-200','text-slate-500');
+  });
+  btn.classList.add('active','border-brand','text-brand');
+  btn.classList.remove('border-slate-200','text-slate-500');
+  render();
+});
+
+/* ─── SERIES TOGGLE ─── */
+['show-c','show-a','show-v'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', ()=>buildTrendChart(getCurrentData()));
+});
+
+/* ─── KW FILTER ─── */
+document.getElementById('kw-filter').addEventListener('change', e=>{
+  const kw = e.target.value;
+  if(kw !== 'all') {
+    document.getElementById('filter-label').textContent =
+      `키워드: ${kw} · ${KW_TOTALS.find(k=>k.kw===kw)?.c||0}건`;
+  } else {
+    render();
+  }
+});
+
+/* ─── INIT ─── */
+const now = new Date();
+document.getElementById('updated-time').textContent = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} 기준`;
+document.getElementById('footer-date').textContent = `데이터 기준일: 2026. 8. 1 · 키워드카운팅 시트 실시간 확인`;
+
+render();
+buildPieChart();
+buildKwBar();
+buildWeekChart();
+</script>
+</body>
+</html>
