@@ -38,6 +38,18 @@ tailwind.config = {
   .fade-in { animation: fadeIn .4s ease forwards; }
   .trend-up { color: #16a34a; }
   .trend-dn { color: #dc2626; }
+  @media (max-width: 640px) {
+    .header-badges { display: none !important; }
+    .header-inner { padding: 8px 12px; }
+    .header-title { font-size: 15px; }
+    .header-sub { font-size: 10px; }
+    #week-row { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; }
+    #period-btns { flex-wrap: nowrap; }
+    .kpi-num { font-size: 1.6rem !important; }
+    .kpi-trend { font-size: 9px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-card-inner { padding: 10px 10px 8px !important; }
+    main { padding-left: 12px !important; padding-right: 12px !important; }
+  }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -53,16 +65,16 @@ tailwind.config = {
 
 <!-- ─── HEADER ─── -->
 <header class="gradient-header text-white sticky top-0 z-50 shadow-lg">
-  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+  <div class="header-inner max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
     <div>
       <div class="flex items-center gap-2">
-        <span class="text-xl font-black tracking-tight">Dr.FORHAIR</span>
+        <span class="header-title text-xl font-black tracking-tight">Dr.FORHAIR</span>
         <span class="text-brand-mid font-bold text-sm">|</span>
         <span class="font-semibold text-sm opacity-90">네이버 지식IN 성과 분석</span>
       </div>
-      <p class="text-xs opacity-55 mt-0.5">키워드카운팅 시트 실시간 데이터 기반 · 2026. 7월 전체</p>
+      <p class="header-sub text-xs opacity-55 mt-0.5">키워드카운팅 시트 실시간 데이터 기반 · 2026. 7월 전체</p>
     </div>
-    <div class="flex items-center gap-3 text-xs">
+    <div class="header-badges flex items-center gap-3 text-xs">
       <span class="bg-white/15 border border-white/25 rounded-full px-3 py-1.5 font-semibold">
         <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full mr-1.5 animate-pulse"></span>
         시트 동기화 완료
@@ -97,7 +109,7 @@ tailwind.config = {
       <option value="정수리탈모">정수리탈모</option>
       <option value="여성탈모">여성탈모</option>
     </select>
-        <span class="text-xs text-slate-400 flex-shrink-0" id="filter-label">7월 31일 · 1,378건 수집</span>
+        <span class="text-xs text-slate-400 flex-shrink-0" id="filter-label">7월 30일 · 679건 수집</span>
       </div>
     </div>
     <!-- 주차 선택 (7월일 때만 표시) -->
@@ -119,52 +131,52 @@ tailwind.config = {
 <!-- ─── KPI CARDS ─── -->
 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 fade-in">
   <!-- 총 수집 -->
-  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+  <div class="kpi-card-inner bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand to-brand-mid"></div>
     <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">총 수집 (크롤링)</p>
-    <p class="text-3xl font-black text-brand mt-2" id="kpi-c">1,378</p>
-    <p class="text-xs text-slate-400 mt-1">게시글 <span class="font-semibold text-slate-600">31일</span> 누적</p>
-    <div class="mt-2 text-xs font-semibold trend-up">↑ 키워드 12개 추가로 급증</div>
+    <p class="kpi-num text-3xl font-black text-brand mt-2" id="kpi-c">679</p>
+    <p class="text-xs text-slate-400 mt-1">게시글 <span id="kpi-c-days" class="font-semibold text-slate-600">30일</span> 누적</p>
+    <div class="kpi-trend mt-2 text-xs font-semibold trend-up">↑ 3주차 364건 최고치</div>
   </div>
   <!-- 검수 통과 -->
-  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+  <div class="kpi-card-inner bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-sky-400"></div>
     <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">검수 통과</p>
-    <p class="text-3xl font-black text-sky-600 mt-2" id="kpi-rev">746</p>
-    <p class="text-xs text-slate-400 mt-1">수집 대비 <span class="font-semibold text-slate-600">54.1%</span> 통과율</p>
-    <div class="mt-2 text-xs font-semibold text-sky-500">AI 자동 검수 10개 항목</div>
+    <p class="kpi-num text-3xl font-black text-sky-600 mt-2" id="kpi-rev">453</p>
+    <p class="text-xs text-slate-400 mt-1">수집 대비 <span id="kpi-rev-rate" class="font-semibold text-slate-600">66.7%</span> 통과율</p>
+    <div class="kpi-trend mt-2 text-xs font-semibold text-sky-500">AI 자동 검수 10개 항목</div>
   </div>
   <!-- 답변 등록 -->
-  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+  <div class="kpi-card-inner bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gold"></div>
     <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">답변 등록</p>
-    <p class="text-3xl font-black text-gold mt-2" id="kpi-a">209</p>
-    <p class="text-xs text-slate-400 mt-1">검수 대비 <span class="font-semibold text-slate-600">28.0%</span> 등록률</p>
-    <div class="mt-2 text-xs font-semibold trend-dn">↓ 계정 잠금으로 급감</div>
+    <p class="kpi-num text-3xl font-black text-gold mt-2" id="kpi-a">161</p>
+    <p class="text-xs text-slate-400 mt-1">검수 대비 <span id="kpi-a-rate" class="font-semibold text-slate-600">35.5%</span> 등록률</p>
+    <div class="kpi-trend mt-2 text-xs font-semibold trend-dn">↓ 계정 잠금 후 급감</div>
   </div>
   <!-- 채택 -->
-  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+  <div class="kpi-card-inner bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-purple-500"></div>
     <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">채택 수</p>
-    <p class="text-3xl font-black text-purple-600 mt-2" id="kpi-ad">5</p>
-    <p class="text-xs text-slate-400 mt-1">채택률 <span class="font-semibold text-slate-600">2.4%</span> (답변 대비)</p>
-    <div class="mt-2 text-xs font-semibold text-purple-500">채택 = 브랜드 노출 극대화</div>
+    <p class="kpi-num text-3xl font-black text-purple-600 mt-2" id="kpi-ad">4</p>
+    <p class="text-xs text-slate-400 mt-1">채택률 <span id="kpi-ad-rate" class="font-semibold text-slate-600">2.5%</span> (답변 대비)</p>
+    <div class="kpi-trend mt-2 text-xs font-semibold text-purple-500">채택 = 브랜드 노출 극대화</div>
   </div>
   <!-- 조회수 -->
-  <div class="bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
+  <div class="kpi-card-inner bg-white rounded-2xl p-4 kpi-glow border border-slate-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-rose"></div>
     <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">총 조회수</p>
-    <p class="text-3xl font-black text-rose mt-2" id="kpi-v">14,100</p>
+    <p class="kpi-num text-3xl font-black text-rose mt-2" id="kpi-v">6,309</p>
     <p class="text-xs text-slate-400 mt-1">브랜드 노출 누적</p>
-    <div class="mt-2 text-xs font-semibold trend-up">↑ 7월 말 폭발적 증가</div>
+    <div class="kpi-trend mt-2 text-xs font-semibold trend-up">↑ 3주차 집중</div>
   </div>
   <!-- 가동 계정 -->
   <div class="bg-rose-50 rounded-2xl p-4 kpi-glow border border-rose-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-rose"></div>
     <p class="text-xs font-bold text-rose/70 uppercase tracking-wide">가동 계정</p>
-    <p class="text-3xl font-black text-rose mt-2">2 <span class="text-base font-bold text-rose/50">/ 11</span></p>
-    <p class="text-xs text-rose/60 mt-1">페이·로이만 활성</p>
-    <div class="mt-2 text-xs font-semibold text-rose">⚠ 9계정 잠금 중</div>
+    <p class="text-3xl font-black text-rose mt-2">1 <span class="text-base font-bold text-rose/50">/ 8</span></p>
+    <p class="text-xs text-rose/60 mt-1">메이만 정상 운영</p>
+    <div class="mt-2 text-xs font-semibold text-rose">⚠ 7계정 이슈 (잠금 5·글쓰기제한 2)</div>
   </div>
 </div>
 
@@ -174,7 +186,7 @@ tailwind.config = {
   <div class="space-y-3">
     <div>
       <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-        <span>수집 (크롤링)</span><span id="funnel-c-val" class="text-brand font-black">1,378건</span>
+        <span>수집 (크롤링)</span><span id="funnel-c-val" class="text-brand font-black">679건</span>
       </div>
       <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
         <div class="funnel-bar h-full bg-gradient-to-r from-brand to-brand-mid rounded-lg flex items-center px-3" style="width:100%">
@@ -184,27 +196,27 @@ tailwind.config = {
     </div>
     <div>
       <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-        <span>검수 통과</span><span id="funnel-rev-val" class="text-sky-600 font-black">746건</span>
+        <span>검수 통과</span><span id="funnel-rev-val" class="text-sky-600 font-black">453건</span>
       </div>
       <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
-        <div class="funnel-bar h-full bg-gradient-to-r from-sky-400 to-sky-500 rounded-lg flex items-center px-3" style="width:54.1%">
-          <span class="text-white text-xs font-bold">54.1%</span>
+        <div id="funnel-rev-bar" class="funnel-bar h-full bg-gradient-to-r from-sky-400 to-sky-500 rounded-lg flex items-center px-3" style="width:66.7%">
+          <span id="funnel-rev-pct" class="text-white text-xs font-bold">66.7%</span>
         </div>
       </div>
     </div>
     <div>
       <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-        <span>답변 등록</span><span id="funnel-a-val" class="text-gold font-black">209건</span>
+        <span>답변 등록</span><span id="funnel-a-val" class="text-gold font-black">161건</span>
       </div>
       <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
-        <div class="funnel-bar h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center px-3" style="width:15.2%">
-          <span class="text-white text-xs font-bold">15.2%</span>
+        <div id="funnel-a-bar" class="funnel-bar h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center px-3" style="width:23.7%">
+          <span id="funnel-a-pct" class="text-white text-xs font-bold">23.7%</span>
         </div>
       </div>
     </div>
     <div>
       <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-        <span>채택</span><span class="text-purple-600 font-black">5건</span>
+        <span>채택</span><span class="text-purple-600 font-black">4건</span>
       </div>
       <div class="h-7 bg-slate-100 rounded-lg overflow-hidden">
         <div class="funnel-bar h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg flex items-center px-3" style="width:0.36%">
@@ -281,9 +293,9 @@ tailwind.config = {
   <div class="flex items-center justify-between mb-4">
     <div>
       <h3 class="text-sm font-black text-slate-700">계정 운영 상태 & 잠금 이력</h3>
-      <p class="text-xs text-slate-400 mt-0.5">운영계정 시트 기준 · 2026-08-01</p>
+      <p class="text-xs text-slate-400 mt-0.5">운영계정 시트 기준 · 2026-08-03</p>
     </div>
-    <span class="text-xs bg-rose-100 text-rose font-bold px-3 py-1 rounded-full">9/11 계정 잠금 중</span>
+    <span class="text-xs bg-rose-100 text-rose font-bold px-3 py-1 rounded-full">7/8 계정 이슈 중</span>
   </div>
   <div class="overflow-x-auto">
     <table class="w-full text-xs">
@@ -292,22 +304,19 @@ tailwind.config = {
           <th class="text-left font-bold text-slate-400 pb-2 pr-4">계정명</th>
           <th class="text-left font-bold text-slate-400 pb-2 pr-4">Naver ID</th>
           <th class="text-left font-bold text-slate-400 pb-2 pr-4">상태</th>
-          <th class="text-left font-bold text-slate-400 pb-2 pr-4">잠금 해제일</th>
-          <th class="text-left font-bold text-slate-400 pb-2">잠금 사유</th>
+          <th class="text-left font-bold text-slate-400 pb-2 pr-4">해제일</th>
+          <th class="text-left font-bold text-slate-400 pb-2">사유</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-50">
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 페이</td><td class="pr-4 text-slate-400">신규</td><td class="pr-4"><span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">운영 가능</span></td><td class="pr-4 text-slate-400">-</td><td class="text-slate-400">-</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 로이</td><td class="pr-4 text-slate-400">신규</td><td class="pr-4"><span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">운영 가능</span></td><td class="pr-4 text-slate-400">-</td><td class="text-slate-400">-</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 제이</td><td class="pr-4 text-slate-400">wyatt002</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/6)</span></td><td class="pr-4 font-bold text-amber-600">8/6</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 레이</td><td class="pr-4 text-slate-400">wyatt001</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 에이</td><td class="pr-4 text-slate-400">wyatt003</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 웨이</td><td class="pr-4 text-slate-400">wyatt005</td><td class="pr-4"><span class="bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-orange-600">8/8</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 케이</td><td class="pr-4 text-slate-400">wyatt004</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/15)</span></td><td class="pr-4 font-bold text-red-600">8/15</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 베이</td><td class="pr-4 text-slate-400">wyatt006</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 데이</td><td class="pr-4 text-slate-400">wyatt009</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 메이</td><td class="pr-4 text-slate-400">wyatt008</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/25)</span></td><td class="pr-4 font-bold text-red-600">8/25</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 조이</td><td class="pr-4 text-slate-400">wyatt010</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/31)</span></td><td class="pr-4 font-bold text-red-600">8/31</td><td class="text-slate-400">비정상적인 활동 반복</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 메이</td><td class="pr-4 text-slate-400">wyatt008</td><td class="pr-4"><span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">운영 가능</span></td><td class="pr-4 text-slate-400">-</td><td class="text-slate-400">-</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 제이</td><td class="pr-4 text-slate-400">wyatt002</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/6)</span></td><td class="pr-4 font-bold text-red-600">8/6</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 레이</td><td class="pr-4 text-slate-400">wyatt001</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-red-600">8/8</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 에이</td><td class="pr-4 text-slate-400">wyatt003</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-red-600">8/8</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 웨이</td><td class="pr-4 text-slate-400">wyatt005</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-red-600">8/8</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 케이</td><td class="pr-4 text-slate-400">wyatt004</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/15)</span></td><td class="pr-4 font-bold text-red-600">8/15</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 베이</td><td class="pr-4 text-slate-400">wyatt006</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">글쓰기제한 (~8/23)</span></td><td class="pr-4 font-bold text-amber-600">8/23</td><td class="text-slate-400">서비스 이용 제한(글쓰기 금지)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 데이</td><td class="pr-4 text-slate-400">wyatt009</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">글쓰기제한 (~8/23)</span></td><td class="pr-4 font-bold text-amber-600">8/23</td><td class="text-slate-400">서비스 이용 제한(글쓰기 금지)</td></tr>
       </tbody>
     </table>
   </div>
@@ -327,8 +336,8 @@ tailwind.config = {
         <div class="flex items-start gap-2.5">
           <span class="text-emerald-600 font-black text-sm mt-0.5">↑</span>
           <div>
-            <p class="text-xs font-black text-emerald-800">키워드 확장 효과 즉각 반영</p>
-            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">7/27~7/31 일평균 수집 <strong>104건</strong> — 키워드 12개 추가 전 평균 35건 대비 <strong>3배 급증</strong>. 두피케어·지루성두피염 등 롱테일 키워드가 볼륨을 견인.</p>
+            <p class="text-xs font-black text-emerald-800">3주차(7/15~21) 수집 최고치 — 일평균 52건</p>
+            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">3주차 수집 <strong>364건</strong>(일평균 52건) — 1주차 10건 대비 <strong>5배 증가</strong>. 추가 계정(wyatt008·009) 투입과 키워드 확장 효과가 맞물려 볼륨 극대화.</p>
           </div>
         </div>
       </div>
@@ -336,8 +345,8 @@ tailwind.config = {
         <div class="flex items-start gap-2.5">
           <span class="text-emerald-600 font-black text-sm mt-0.5">↑</span>
           <div>
-            <p class="text-xs font-black text-emerald-800">조회수 1,000회 돌파 구간 포착</p>
-            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">7/27 <strong>1,367회</strong>, 7/29 <strong>1,001회</strong> 기록. 답변을 달지 않은 날에도 기존 등록된 콘텐츠가 지속 유입을 만들어냄. 채택된 답변의 SEO 장기 효과 확인.</p>
+            <p class="text-xs font-black text-emerald-800">조회수 전체의 72.8%가 3주차에 집중</p>
+            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">3주차(7/15~21) 조회수 <strong>4,595회</strong> — 전체 6,309회의 72.8%. 7/17 <strong>837회</strong>, 7/16 <strong>715회</strong> 최다. 답변 등록이 활발했던 시기와 조회수가 일치.</p>
           </div>
         </div>
       </div>
@@ -345,8 +354,8 @@ tailwind.config = {
         <div class="flex items-start gap-2.5">
           <span class="text-amber-600 font-black text-sm mt-0.5">!</span>
           <div>
-            <p class="text-xs font-black text-amber-800">탈모·두피 2개 키워드가 전체 수집의 79%</p>
-            <p class="text-xs text-amber-700 mt-1 leading-relaxed">탈모(658건) + 두피(411건) = <strong>1,069건 (78.6%)</strong>. 특정 키워드 편중은 수집 효율이지만, 채택률 향상을 위해서는 <strong>의도가 명확한 롱테일 키워드</strong>로 답변 집중이 필요.</p>
+            <p class="text-xs font-black text-amber-800">두피·탈모 2개 키워드가 전체의 54%</p>
+            <p class="text-xs text-amber-700 mt-1 leading-relaxed">두피(200건, 29.5%) + 탈모(167건, 24.6%) = <strong>367건(54.1%)</strong>. 나머지 312건은 원형탈모·지루성두피염 등 기타 키워드. 롱테일 키워드 강화로 채택률 개선 여지 있음.</p>
           </div>
         </div>
       </div>
@@ -354,8 +363,8 @@ tailwind.config = {
         <div class="flex items-start gap-2.5">
           <span class="text-red-600 font-black text-sm mt-0.5">↓</span>
           <div>
-            <p class="text-xs font-black text-red-800">계정 잠금이 가장 큰 리스크 — 7월 후반 답변률 0%</p>
-            <p class="text-xs text-red-700 mt-1 leading-relaxed">7/1~7/6 평균 답변률 <strong>77%</strong> → 7/27~8/1 <strong>0.8%</strong>. 단기간 집중 등록이 스팸 감지를 유발. 계정별 일일 등록 한도 관리 및 인간적인 쿨다운 패턴 도입이 필수.</p>
+            <p class="text-xs font-black text-red-800">계정 잠금 — 7/22 이후 사실상 운영 중단</p>
+            <p class="text-xs text-red-700 mt-1 leading-relaxed">1주차 답변률 <strong>76.8%</strong> → 4주차 <strong>5.6%(2/36건)</strong>. 7/10 wyatt001·003·005, 7/14 wyatt004, 7/24 wyatt006·009 순차 정지로 운영 가능 계정이 페이·로이 2개만 남음.</p>
           </div>
         </div>
       </div>
@@ -432,7 +441,7 @@ tailwind.config = {
         <tr class="bg-emerald-50/50">
           <td class="py-3 pr-4 font-black text-brand">01</td>
           <td class="pr-4 font-bold">탈모</td>
-          <td class="text-center pr-4 font-bold text-brand">658</td>
+          <td class="text-center pr-4 font-bold text-brand">167</td>
           <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●●●●</span></td>
           <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●○○</span></td>
           <td class="text-center pr-4"><span class="text-red-500 font-black">●●●●○</span></td>
@@ -441,7 +450,7 @@ tailwind.config = {
         <tr>
           <td class="py-3 pr-4 font-black text-brand">02</td>
           <td class="pr-4 font-bold">두피</td>
-          <td class="text-center pr-4 font-bold text-brand">411</td>
+          <td class="text-center pr-4 font-bold text-brand">200</td>
           <td class="text-center pr-4"><span class="text-emerald-600 font-black">●●●●○</span></td>
           <td class="text-center pr-4"><span class="text-amber-500 font-black">●●●○○</span></td>
           <td class="text-center pr-4"><span class="text-red-500 font-black">●●●○○</span></td>
@@ -703,10 +712,28 @@ function updateKPIs(data) {
   document.getElementById('kpi-ad').textContent  = ad||'-';
   document.getElementById('kpi-v').textContent   = v.toLocaleString();
   // 퍼널 수치 업데이트
-  const revVal=rev>0?rev:Math.round(c*0.541);
+  const revVal=rev>0?rev:Math.round(c*0.667);
   const el_c=document.getElementById('funnel-c-val'); if(el_c) el_c.textContent=c.toLocaleString()+'건';
   const el_r=document.getElementById('funnel-rev-val'); if(el_r) el_r.textContent=revVal.toLocaleString()+'건';
   const el_a=document.getElementById('funnel-a-val'); if(el_a) el_a.textContent=a.toLocaleString()+'건';
+  // 퍼널 바 너비 동적 업데이트
+  if(c>0){
+    const revPct=(revVal/c*100).toFixed(1);
+    const aPct=(a/c*100).toFixed(1);
+    const rb=document.getElementById('funnel-rev-bar'); if(rb){rb.style.width=revPct+'%';}
+    const rp=document.getElementById('funnel-rev-pct'); if(rp){rp.textContent=revPct+'%';}
+    const ab=document.getElementById('funnel-a-bar'); if(ab){ab.style.width=aPct+'%';}
+    const ap=document.getElementById('funnel-a-pct'); if(ap){ap.textContent=aPct+'%';}
+    // KPI 서브텍스트 비율 동적 업데이트
+    const revRate=(revVal/c*100).toFixed(1);
+    const aRate=revVal>0?(a/revVal*100).toFixed(1):'0';
+    const adRate=a>0?(ad/a*100).toFixed(1):'0';
+    const el_rr=document.getElementById('kpi-rev-rate'); if(el_rr) el_rr.textContent=revRate+'%';
+    const el_ar=document.getElementById('kpi-a-rate');   if(el_ar) el_ar.textContent=aRate+'%';
+    const el_adr=document.getElementById('kpi-ad-rate'); if(el_adr) el_adr.textContent=adRate+'%';
+  }
+  // 일수 동적 업데이트
+  const el_days=document.getElementById('kpi-c-days'); if(el_days) el_days.textContent=data.length+'일';
   const monthLabel={'56':'5~6월','7':'7월','8':'8월','all':'전체'}[currentMonth];
   document.getElementById('filter-label').textContent=
     currentMonth==='56'
@@ -807,7 +834,7 @@ function buildPieChart() {
       responsive:true, maintainAspectRatio:false, cutout:'60%',
       plugins:{
         legend:{ display:false },
-        tooltip:{ callbacks:{ label:(c)=>`${c.label}: ${c.raw}건 (${(c.raw/1378*100).toFixed(1)}%)` }},
+        tooltip:{ callbacks:{ label:(c)=>{ const tot=vals.reduce((s,v)=>s+v,0); return `${c.label}: ${c.raw}건 (${tot>0?(c.raw/tot*100).toFixed(1):0}%)`; }}},
         datalabels:{ display:false }
       }
     }
