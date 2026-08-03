@@ -43,8 +43,6 @@ tailwind.config = {
     .header-inner { padding: 8px 12px; }
     .header-title { font-size: 15px; }
     .header-sub { font-size: 10px; }
-    #week-row { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; }
-    #period-btns { flex-wrap: nowrap; }
     .kpi-num { font-size: 1.6rem !important; }
     .kpi-trend { font-size: 9px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .kpi-card-inner { padding: 10px 10px 8px !important; }
@@ -72,7 +70,7 @@ tailwind.config = {
         <span class="text-brand-mid font-bold text-sm">|</span>
         <span class="font-semibold text-sm opacity-90">네이버 지식IN 성과 분석</span>
       </div>
-      <p class="header-sub text-xs opacity-55 mt-0.5">키워드카운팅 시트 실시간 데이터 기반 · 2026. 7월 전체</p>
+      <p class="header-sub text-xs opacity-55 mt-0.5">키워드카운팅 시트 실시간 데이터 기반 · 2026년</p>
     </div>
     <div class="header-badges flex items-center gap-3 text-xs">
       <span class="bg-white/15 border border-white/25 rounded-full px-3 py-1.5 font-semibold">
@@ -98,29 +96,7 @@ tailwind.config = {
         <button data-month="all" class="month-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand transition-all">전체 누적</button>
       </div>
       <div class="ml-auto flex items-center gap-3">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">키워드</span>
-    <select id="kw-filter" class="text-xs font-semibold border border-slate-200 rounded-full px-3 py-1.5 bg-white text-slate-600 focus:outline-none focus:border-brand cursor-pointer">
-      <option value="all">전체 키워드</option>
-      <option value="탈모">탈모</option>
-      <option value="두피">두피</option>
-      <option value="샴푸">샴푸</option>
-      <option value="원형탈모">원형탈모</option>
-      <option value="지루성두피염">지루성두피염</option>
-      <option value="정수리탈모">정수리탈모</option>
-      <option value="여성탈모">여성탈모</option>
-    </select>
         <span class="text-xs text-slate-400 flex-shrink-0" id="filter-label">7월 30일 · 679건 수집</span>
-      </div>
-    </div>
-    <!-- 주차 선택 (7월일 때만 표시) -->
-    <div id="week-row" class="flex items-center gap-3 flex-wrap py-2" style="display:flex">
-      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">주차</span>
-      <div class="flex gap-1.5" id="period-btns">
-        <button data-period="all"   class="filter-btn active text-xs font-bold px-3 py-1.5 rounded-full border border-brand text-brand">전체</button>
-        <button data-period="week1" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">1주차 (7/1~7)</button>
-        <button data-period="week2" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">2주차 (7/8~14)</button>
-        <button data-period="week3" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">3주차 (7/15~21)</button>
-        <button data-period="week4" class="filter-btn text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-brand hover:text-brand">4주차+ (7/22~31)</button>
       </div>
     </div>
   </div>
@@ -174,9 +150,9 @@ tailwind.config = {
   <div class="bg-rose-50 rounded-2xl p-4 kpi-glow border border-rose-100 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-rose"></div>
     <p class="text-xs font-bold text-rose/70 uppercase tracking-wide">가동 계정</p>
-    <p class="text-3xl font-black text-rose mt-2">1 <span class="text-base font-bold text-rose/50">/ 8</span></p>
-    <p class="text-xs text-rose/60 mt-1">메이만 정상 운영</p>
-    <div class="mt-2 text-xs font-semibold text-rose">⚠ 7계정 이슈 (잠금 5·글쓰기제한 2)</div>
+    <p class="text-3xl font-black text-rose mt-2">0 <span class="text-base font-bold text-rose/50">/ 9</span></p>
+    <p class="text-xs text-rose/60 mt-1">전체 잠금 상태</p>
+    <div class="mt-2 text-xs font-semibold text-rose">⚠ 9계정 전체 잠금 · 복구 8/6~</div>
   </div>
 </div>
 
@@ -288,6 +264,8 @@ tailwind.config = {
   </div>
 </div>
 
+<div class="month-section" data-show-months="7,all">
+
 <!-- ─── 계정 잠금 히스토리 ─── -->
 <div class="bg-white rounded-2xl p-5 kpi-glow border border-slate-100 fade-in">
   <div class="flex items-center justify-between mb-4">
@@ -315,8 +293,10 @@ tailwind.config = {
         <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 에이</td><td class="pr-4 text-slate-400">wyatt003</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-red-600">8/8</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
         <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 웨이</td><td class="pr-4 text-slate-400">wyatt005</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/8)</span></td><td class="pr-4 font-bold text-red-600">8/8</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
         <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 케이</td><td class="pr-4 text-slate-400">wyatt004</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/15)</span></td><td class="pr-4 font-bold text-red-600">8/15</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 베이</td><td class="pr-4 text-slate-400">wyatt006</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">글쓰기제한 (~8/23)</span></td><td class="pr-4 font-bold text-amber-600">8/23</td><td class="text-slate-400">서비스 이용 제한(글쓰기 금지)</td></tr>
-        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 데이</td><td class="pr-4 text-slate-400">wyatt009</td><td class="pr-4"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">글쓰기제한 (~8/23)</span></td><td class="pr-4 font-bold text-amber-600">8/23</td><td class="text-slate-400">서비스 이용 제한(글쓰기 금지)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 베이</td><td class="pr-4 text-slate-400">wyatt006</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 데이</td><td class="pr-4 text-slate-400">wyatt009</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/23)</span></td><td class="pr-4 font-bold text-red-600">8/23</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 메이</td><td class="pr-4 text-slate-400">wyatt008</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/25)</span></td><td class="pr-4 font-bold text-red-600">8/25</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
+        <tr><td class="py-2 pr-4 font-semibold">트리콜로지스트 조이</td><td class="pr-4 text-slate-400">wyatt010</td><td class="pr-4"><span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">잠금 (~8/31)</span></td><td class="pr-4 font-bold text-red-600">8/31</td><td class="text-slate-400">계정 잠금조치(비정상적인 활동 반복)</td></tr>
       </tbody>
     </table>
   </div>
@@ -364,7 +344,7 @@ tailwind.config = {
           <span class="text-red-600 font-black text-sm mt-0.5">↓</span>
           <div>
             <p class="text-xs font-black text-red-800">계정 잠금 — 7/22 이후 사실상 운영 중단</p>
-            <p class="text-xs text-red-700 mt-1 leading-relaxed">1주차 답변률 <strong>76.8%</strong> → 4주차 <strong>5.6%(2/36건)</strong>. 7/10 wyatt001·003·005, 7/14 wyatt004, 7/24 wyatt006·009 순차 정지로 운영 가능 계정이 페이·로이 2개만 남음.</p>
+            <p class="text-xs text-red-700 mt-1 leading-relaxed">1주차 답변률 <strong>76.8%</strong> → 4주차 <strong>5.6%(2/36건)</strong>. 7/10 wyatt001·003·005, 7/14 wyatt004, 7/24 wyatt006·009 순차 정지로 7월 말 운영 사실상 중단.</p>
           </div>
         </div>
       </div>
@@ -410,7 +390,7 @@ tailwind.config = {
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xs bg-amber-500 text-white font-black px-2 py-0.5 rounded-full">계정 보호</span>
         </div>
-        <p class="text-xs text-amber-800 leading-relaxed">계정당 <strong>하루 최대 5건</strong>, 등록 간격 <strong>최소 60분</strong>, 동일 IP 계정 동시 등록 금지. 신규 계정(페이·로이)은 첫 2주 동안 하루 2건으로 시작.</p>
+        <p class="text-xs text-amber-800 leading-relaxed">계정당 <strong>하루 최대 5건</strong>, 등록 간격 <strong>최소 60분</strong>, 동일 IP 계정 동시 등록 금지. 복구 초기 1주일은 계정당 하루 2~3건으로 시작.</p>
       </div>
     </div>
   </div>
@@ -503,6 +483,165 @@ tailwind.config = {
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+</div><!-- /month-section 7,all -->
+
+<!-- ─── 8월 목표 & 운영 계획 ─── -->
+<div class="month-section bg-white rounded-2xl kpi-glow border border-slate-100 fade-in overflow-hidden" data-show-months="8" style="display:none">
+
+  <!-- 헤더 + 목표 수치 -->
+  <div class="gradient-header px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-white/60 text-xs font-semibold uppercase tracking-wider">8월 목표 & 운영 계획</p>
+      <p class="text-white text-sm font-black mt-0.5">7월 실적 기반 · 계정 순차 복구 일정 기준</p>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="text-center">
+        <p class="text-3xl font-black text-white">200</p>
+        <p class="text-xs text-white/60 mt-0.5 font-semibold">답변 목표 (건)</p>
+      </div>
+      <div class="w-px h-10 bg-white/20"></div>
+      <div class="text-center">
+        <p class="text-3xl font-black text-white">5</p>
+        <p class="text-xs text-white/60 mt-0.5 font-semibold">채택 목표 (건)</p>
+      </div>
+      <div class="w-px h-10 bg-white/20"></div>
+      <div class="text-center">
+        <p class="text-3xl font-black text-white">9</p>
+        <p class="text-xs text-white/60 mt-0.5 font-semibold">8월말 복구 계정</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 본문 -->
+  <div class="p-5 grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+    <!-- 계정 복구 타임라인 -->
+    <div>
+      <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">계정 복구 타임라인</p>
+      <div class="space-y-2">
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-rose bg-rose-50 border border-rose-100 px-2 py-1 rounded-lg block">8/1~5</span>
+          </div>
+          <div class="flex-1 h-7 bg-rose-50 border border-rose-100 rounded-lg flex items-center px-3">
+            <span class="text-xs text-rose font-semibold">공백 — 운영 가능 계정 없음</span>
+          </div>
+          <span class="text-xs font-black text-slate-300 w-8 text-right">0개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg block">8/6~7</span>
+          </div>
+          <div class="flex-1 h-7 bg-amber-50 border border-amber-100 rounded-lg flex items-center px-3">
+            <span class="text-xs text-amber-700 font-semibold">제이 복구 · 보수 운영 시작</span>
+          </div>
+          <span class="text-xs font-black text-amber-500 w-8 text-right">1개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg block">8/8~14</span>
+          </div>
+          <div class="flex-1 h-7 bg-amber-50 border border-amber-100 rounded-lg flex items-center px-3">
+            <span class="text-xs text-amber-700 font-semibold">레이·에이·웨이 복구</span>
+          </div>
+          <span class="text-xs font-black text-amber-500 w-8 text-right">4개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-brand bg-brand/10 border border-brand/20 px-2 py-1 rounded-lg block">8/15~</span>
+          </div>
+          <div class="flex-1 h-7 bg-brand/5 border border-brand/20 rounded-lg flex items-center px-3">
+            <span class="text-xs text-brand font-semibold">케이 복구 · 본격 볼륨 확보 구간</span>
+          </div>
+          <span class="text-xs font-black text-brand w-8 text-right">5개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-brand bg-brand/10 border border-brand/20 px-2 py-1 rounded-lg block">8/23~</span>
+          </div>
+          <div class="flex-1 h-7 bg-brand/5 border border-brand/20 rounded-lg flex items-center px-3">
+            <span class="text-xs text-brand font-semibold">베이·데이 복구</span>
+          </div>
+          <span class="text-xs font-black text-brand w-8 text-right">7개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-brand bg-brand/10 border border-brand/20 px-2 py-1 rounded-lg block">8/25~</span>
+          </div>
+          <div class="flex-1 h-7 bg-brand/5 border border-brand/20 rounded-lg flex items-center px-3">
+            <span class="text-xs text-brand font-semibold">메이 복구</span>
+          </div>
+          <span class="text-xs font-black text-brand w-8 text-right">8개</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-14 flex-shrink-0 text-center">
+            <span class="text-xs font-black text-brand bg-brand/10 border border-brand/20 px-2 py-1 rounded-lg block">8/31~</span>
+          </div>
+          <div class="flex-1 h-7 bg-brand/5 border border-brand/20 rounded-lg flex items-center px-3">
+            <span class="text-xs text-brand font-semibold">조이 복구 · 최대 9계정 운영</span>
+          </div>
+          <span class="text-xs font-black text-brand w-8 text-right">9개</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 7월 실적 + 운영 방향 -->
+    <div class="space-y-3">
+
+      <!-- 7월 실적 -->
+      <div>
+        <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">7월 실적 (기준치)</p>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+            <p class="text-lg font-black text-slate-700">1,378</p>
+            <p class="text-xs text-slate-400 mt-0.5">수집 (건)</p>
+          </div>
+          <div class="bg-gold/5 rounded-xl p-3 text-center border border-gold/20">
+            <p class="text-lg font-black text-gold">209</p>
+            <p class="text-xs text-slate-400 mt-0.5">답변 (건)</p>
+          </div>
+          <div class="bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+            <p class="text-lg font-black text-purple-600">5</p>
+            <p class="text-xs text-slate-400 mt-0.5">채택 (2.4%)</p>
+          </div>
+        </div>
+        <div class="mt-2 flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-xl px-4 py-2.5">
+          <span class="text-rose text-xs font-black">⚠</span>
+          <span class="text-xs text-rose font-semibold">7/22 이후 계정 전면 잠금 → 운영 사실상 중단</span>
+        </div>
+      </div>
+
+      <!-- 운영 방향 -->
+      <div class="bg-slate-800 rounded-xl p-4 text-white">
+        <p class="text-xs font-black text-white/50 uppercase tracking-wider mb-2">운영 방향</p>
+        <div class="space-y-2 text-xs leading-relaxed text-white/80">
+          <div class="flex items-start gap-2">
+            <span class="text-emerald-400 font-black flex-shrink-0 mt-0.5">①</span>
+            <span>복구 첫 1주일 — <strong class="text-white">계정당 하루 2~3건</strong> 상한, 재잠금 방지 최우선</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-emerald-400 font-black flex-shrink-0 mt-0.5">②</span>
+            <span><strong class="text-white">8/15 이후</strong> 5개 계정 활성화 → 본격 볼륨 확보 시작</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-emerald-400 font-black flex-shrink-0 mt-0.5">③</span>
+            <span>등록 간격 <strong class="text-white">최소 60분</strong>, 동일 IP 동시 등록 금지</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -689,7 +828,7 @@ async function loadSheetData() {
     });
     const b8=document.querySelector('[data-month="8"]');
     if(b8){b8.classList.add('active','bg-brand','text-white','border-brand');b8.classList.remove('border-slate-200','text-slate-500');}
-    document.getElementById('week-row').style.display='none';
+    updateMonthSections('8');
   }
 }
 
@@ -698,6 +837,13 @@ function sum(arr, key) { return arr.reduce((s,r)=>s+(r[key]||0), 0); }
 function getCurrentData() {
   if (currentMonth === '7') return PERIODS_7[currentPeriod] || RAW_7;
   return MONTH_DATA[currentMonth] || RAW_7;
+}
+
+function updateMonthSections(month) {
+  document.querySelectorAll('.month-section').forEach(el => {
+    const months = el.dataset.showMonths ? el.dataset.showMonths.split(',') : [];
+    el.style.display = months.includes(month) ? '' : 'none';
+  });
 }
 
 function updateKPIs(data) {
@@ -934,50 +1080,15 @@ document.getElementById('month-btns').addEventListener('click', e=>{
   btn.classList.add('active','bg-brand','text-white','border-brand');
   btn.classList.remove('border-slate-200','text-slate-500');
 
-  // 주차 행: 7월만 표시
-  const weekRow = document.getElementById('week-row');
-  weekRow.style.display = currentMonth === '7' ? 'flex' : 'none';
-
-  // 주차 버튼 초기화
-  document.querySelectorAll('[data-period]').forEach(b=>{
-    b.classList.remove('active','border-brand','text-brand');
-    b.classList.add('border-slate-200','text-slate-500');
-  });
-  document.querySelector('[data-period="all"]').classList.add('active','border-brand','text-brand');
-  document.querySelector('[data-period="all"]').classList.remove('border-slate-200','text-slate-500');
-
+  currentPeriod = 'all';
   render();
   buildWeekChart();
-});
-
-/* ─── WEEK FILTER (7월 전용) ─── */
-document.getElementById('period-btns').addEventListener('click', e=>{
-  const btn = e.target.closest('[data-period]');
-  if(!btn || currentMonth !== '7') return;
-  currentPeriod = btn.dataset.period;
-  document.querySelectorAll('[data-period]').forEach(b=>{
-    b.classList.remove('active','border-brand','text-brand');
-    b.classList.add('border-slate-200','text-slate-500');
-  });
-  btn.classList.add('active','border-brand','text-brand');
-  btn.classList.remove('border-slate-200','text-slate-500');
-  render();
+  updateMonthSections(currentMonth);
 });
 
 /* ─── SERIES TOGGLE ─── */
 ['show-c','show-a','show-v'].forEach(id=>{
   document.getElementById(id).addEventListener('change', ()=>buildTrendChart(getCurrentData()));
-});
-
-/* ─── KW FILTER ─── */
-document.getElementById('kw-filter').addEventListener('change', e=>{
-  const kw = e.target.value;
-  if(kw !== 'all') {
-    document.getElementById('filter-label').textContent =
-      `키워드: ${kw} · ${KW_TOTALS.find(k=>k.kw===kw)?.c||0}건`;
-  } else {
-    render();
-  }
 });
 
 /* ─── INIT ─── */
@@ -995,6 +1106,7 @@ document.getElementById('kw-filter').addEventListener('change', e=>{
     buildPieChart();
     buildKwBar();
     buildWeekChart();
+    updateMonthSections(currentMonth);
   } catch(e) {
     loader.innerHTML=`<div class="text-center p-8">
       <p class="text-rose-600 font-bold text-sm mb-2">시트 로드 실패: ${e.message}</p>
