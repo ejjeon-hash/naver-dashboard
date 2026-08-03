@@ -554,45 +554,79 @@ function parseCSV(text) {
 function toNum(s){return parseInt((s||'0').replace(/,/g,'').trim())||0;}
 function getWeek(day){return day<=7?1:day<=14?2:day<=21?3:4;}
 
-/* ─── FETCH SHEET ─── */
+/* ─── FETCH SHEET (JSONP — CORS 우회) ─── */
 async function loadSheetData() {
   const SSID='1MfuR70yvEoFx53E3Z6ZTjmQoKye-hmSa6wCkIQojUEY';
   const GID='383461349';
-  const url=`https://docs.google.com/spreadsheets/d/${SSID}/gviz/tq?tqx=out:csv&gid=${GID}`;
-  const res=await fetch(url);
-  if(!res.ok) throw new Error('시트 접근 실패 ('+res.status+')');
-  const rows=parseCSV(await res.text());
 
-  // Row 2 (index 2) = 키워드별 합계 → KW_TOTALS
-  const tot=rows[2];
-  KW_TOTALS=KW_ORDER
-    .map((kw,i)=>({kw, c:toNum(tot[i+1]), color:KW_COLOR_MAP[kw]||'#94a3b8'}))
-    .filter(k=>k.c>0)
-    .sort((a,b)=>b.c-a.c);
+  // JSONP: script 태그로 로드 → CORS 제한 없음
+  const table = await new Promise((resolve, reject) => {
+    const cb = '_gviz_' + Date.now();
+    const s = document.createElement('script');
+    s.src = `https://docs.google.com/spreadsheets/d/${SSID}/gviz/tq?gid=${GID}&tqx=out:json;responseHandler:${cb}`;
+    const tid = setTimeout(() => { try{document.head.removeChild(s);}catch(e){} reject(new Error('로드 타임아웃 (15초)')); }, 15000);
+    s.onerror = () => { clearTimeout(tid); try{document.head.removeChild(s);}catch(e){} reject(new Error('스크립트 로드 실패 — 시트 공개(링크 공유→뷰어) 확인')); };
+    window[cb] = (data) => {
+      clearTimeout(tid);
+      try{document.head.removeChild(s);}catch(e){}
+      delete window[cb];
+      if(data && data.status==='error') reject(new Error('시트 오류: '+(data.errors?.[0]?.message||'알 수 없음')));
+      else resolve(data.table);
+    };
+    document.head.appendChild(s);
+  });
+
+  const cols = table.cols; // [{id, label, type}, ...]
+  const rows = table.rows; // [{c: [{v, f}|null, ...]}, ...]
+
+  // 컬럼 인덱스 동적 탐색 (시트 열 추가/변경에 강건)
+  const findCol = (label) => cols.findIndex(c => c.label.trim() === label.trim());
+  const COL_C   = findCol('수집');
+  const COL_REV = findCol('검수');
+  const COL_A   = findCol('답변');
+  const COL_AD  = findCol('채택');
+  const COL_V   = findCol('조회수');
+  const COL_ISS = findCol('주요 이슈');
+
+  // 키워드 컬럼 = col1 ~ COL_C-1
+  const kwCols = cols.slice(1, COL_C < 0 ? cols.length : COL_C);
+
+  // 셀 값 헬퍼
+  const getV   = (row, idx) => row.c[idx]?.v ?? null;
+  const getNum = (row, idx) => { const v=getV(row,idx); return typeof v==='number'?Math.round(v):(parseInt(String(v||'0').replace(/,/g,''))||0); };
+  const getStr = (row, idx) => String(getV(row,idx)??'').trim();
+
+  // rows[0]=평균행, rows[1]=합계행, rows[2+]=일자별 데이터
+  const totRow = rows[1];
+  if(totRow) {
+    KW_TOTALS = kwCols.map((col,i) => ({
+      kw:    col.label.trim(),
+      c:     getNum(totRow, i+1),
+      color: KW_COLOR_MAP[col.label.trim()] || '#94a3b8'
+    })).filter(k=>k.c>0).sort((a,b)=>b.c-a.c);
+  }
 
   const today=new Date(); today.setHours(23,59,59,999);
-
-  // Rows 3+ = 일자별 데이터
   RAW=[];
-  for(let i=3;i<rows.length;i++){
-    const r=rows[i];
-    const m=r[0].match(/(\d{4})\.\s*(\d+)\.\s*(\d+)/);
+  for(let i=2;i<rows.length;i++){
+    const row=rows[i];
+    const dateRaw=getStr(row,0);
+    const m=dateRaw.match(/(\d{4})\.\s*(\d+)\.\s*(\d+)/);
     if(!m) continue;
     const [,yr,mo,dy]=m.map(Number);
     if(new Date(yr,mo-1,dy)>today) continue;
-    const c=toNum(r[28]),rev=toNum(r[29]),a=toNum(r[30]),ad=toNum(r[31]),v=toNum(r[32]),iss=(r[35]||'').trim();
+    const c=getNum(row,COL_C), rev=getNum(row,COL_REV), a=getNum(row,COL_A),
+          ad=getNum(row,COL_AD), v=getNum(row,COL_V), iss=getStr(row,COL_ISS);
     const daysAgo=(today-new Date(yr,mo-1,dy))/86400000;
-    // 데이터 없는 날은 최근 3일만 포함 (빈 날짜 표시)
     if(c===0&&a===0&&v===0&&iss===''&&daysAgo>2) continue;
     RAW.push({d:`${mo}/${dy}`,c,rev,a,ad,v,iss,w:getWeek(dy),mon:mo});
   }
 
   RAW_7=RAW.filter(r=>r.mon===7);
   RAW_8=RAW.filter(r=>r.mon===8);
-
   MONTH_DATA={'56':RAW_56,'7':RAW_7,'8':RAW_8,'all':[...RAW_56,...RAW_7,...RAW_8]};
   PERIODS_7={
-    all:  RAW_7,
+    all:RAW_7,
     week1:RAW_7.filter(r=>r.w===1),
     week2:RAW_7.filter(r=>r.w===2),
     week3:RAW_7.filter(r=>r.w===3),
