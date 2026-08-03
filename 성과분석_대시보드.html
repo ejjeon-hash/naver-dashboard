@@ -42,6 +42,15 @@ tailwind.config = {
 </head>
 <body class="bg-slate-100 text-slate-800">
 
+<!-- ─── LOADER ─── -->
+<div id="loader" class="fixed inset-0 bg-white/95 z-[200] flex items-center justify-center">
+  <div class="text-center">
+    <div class="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-sm font-bold text-slate-600">구글 시트에서 최신 데이터 로드 중...</p>
+    <p class="text-xs text-slate-400 mt-1">키워드카운팅 시트 실시간 연동</p>
+  </div>
+</div>
+
 <!-- ─── HEADER ─── -->
 <header class="gradient-header text-white sticky top-0 z-50 shadow-lg">
   <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
@@ -501,88 +510,113 @@ tailwind.config = {
 <script>
 Chart.register(ChartDataLabels);
 
-/* ─── RAW DATA (키워드카운팅 시트 2026-08-01 실시간) ─── */
-const RAW = [
-  {d:'7/1', c:10, a:8,  ad:0, v:3,    iss:'', w:1},
-  {d:'7/2', c:9,  a:4,  ad:0, v:17,   iss:'', w:1},
-  {d:'7/3', c:8,  a:8,  ad:0, v:0,    iss:'', w:1},
-  {d:'7/4', c:10, a:7,  ad:1, v:6,    iss:'', w:1},
-  {d:'7/5', c:14, a:12, ad:0, v:466,  iss:'', w:1},
-  {d:'7/6', c:15, a:12, ad:1, v:9,    iss:'계정 정지(wyatt002)', w:1},
-  {d:'7/7', c:3,  a:2,  ad:0, v:4,    iss:'', w:1},
-  {d:'7/8', c:5,  a:3,  ad:0, v:2,    iss:'', w:2},
-  {d:'7/9', c:12, a:6,  ad:0, v:10,   iss:'', w:2},
-  {d:'7/10',c:39, a:7,  ad:1, v:49,   iss:'계정 정지(wyatt001,003,005)', w:2},
-  {d:'7/11',c:17, a:1,  ad:0, v:10,   iss:'', w:2},
-  {d:'7/12',c:30, a:7,  ad:0, v:276,  iss:'', w:2},
-  {d:'7/13',c:49, a:2,  ad:0, v:37,   iss:'', w:2},
-  {d:'7/14',c:58, a:11, ad:0, v:918,  iss:'계정 정지(wyatt004)', w:2},
-  {d:'7/15',c:63, a:6,  ad:0, v:781,  iss:'', w:3},
-  {d:'7/16',c:70, a:16, ad:0, v:715,  iss:'', w:3},
-  {d:'7/17',c:34, a:11, ad:1, v:837,  iss:'', w:3},
-  {d:'7/18',c:21, a:7,  ad:0, v:484,  iss:'', w:3},
-  {d:'7/19',c:31, a:9,  ad:0, v:513,  iss:'계정 생성(wyatt008)', w:3},
-  {d:'7/20',c:88, a:10, ad:0, v:789,  iss:'', w:3},
-  {d:'7/21',c:57, a:10, ad:0, v:556,  iss:'계정 생성(wyatt009)', w:3},
-  {d:'7/22',c:64, a:15, ad:0, v:695,  iss:'', w:4},
-  {d:'7/23',c:61, a:15, ad:0, v:504,  iss:'', w:4},
-  {d:'7/24',c:32, a:3,  ad:0, v:417,  iss:'계정 정지(wyatt006,009)', w:4},
-  {d:'7/25',c:25, a:6,  ad:0, v:684,  iss:'', w:4},
-  {d:'7/26',c:31, a:5,  ad:1, v:650,  iss:'계정 정지(wyatt008)', w:4},
-  {d:'7/27',c:143,a:0,  ad:0, v:1367, iss:'키워드 12개 추가', w:4},
-  {d:'7/28',c:63, a:0,  ad:0, v:619,  iss:'', w:4},
-  {d:'7/29',c:69, a:0,  ad:0, v:1001, iss:'', w:4},
-  {d:'7/30',c:121,a:0,  ad:0, v:875,  iss:'', w:4},
-  {d:'7/31',c:126,a:6,  ad:0, v:636,  iss:'', w:4},
-  {d:'8/1', c:0,  a:0,  ad:0, v:0,    iss:'계정 정지(wyatt010)', w:4},
-];
-
-const KW_TOTALS = [
-  {kw:'탈모',       c:658, color:'#1a7a5e'},
-  {kw:'두피',       c:411, color:'#2da882'},
-  {kw:'샴푸',       c:159, color:'#f0a500'},
-  {kw:'원형탈모',   c:34,  color:'#6c63ff'},
-  {kw:'지루성두피염',c:23, color:'#00b4d8'},
-  {kw:'비듬',       c:23,  color:'#ff9f40'},
-  {kw:'정수리탈모', c:19,  color:'#e05252'},
-  {kw:'M자탈모',    c:9,   color:'#20c997'},
-  {kw:'여성탈모',   c:11,  color:'#a78bfa'},
-  {kw:'산후탈모',   c:10,  color:'#fb7185'},
-  {kw:'새치',       c:3,   color:'#94a3b8'},
-  {kw:'샴푸추천',   c:5,   color:'#fbbf24'},
-];
-
-/* 5~6월 집계 (일별 데이터 없음 — 누적탭 합계만 존재) */
-const RAW_56 = [
-  {d:'5~6월',c:64,a:44,ad:0,v:3387,iss:'',w:0}
-];
-
-/* 8월 (현재 8/1만 존재) */
-const RAW_8 = RAW.filter(r=>r.d.startsWith('8/'));
-
-/* 7월 전체 */
-const RAW_7 = RAW.filter(r=>r.d.startsWith('7/'));
-
-const MONTH_DATA = { '56': RAW_56, '7': RAW_7, '8': RAW_8, 'all': [...RAW_56, ...RAW_7, ...RAW_8] };
-
-const PERIODS_7 = {
-  all:   RAW_7,
-  week1: RAW_7.filter(r=>r.w===1),
-  week2: RAW_7.filter(r=>r.w===2),
-  week3: RAW_7.filter(r=>r.w===3),
-  week4: RAW_7.filter(r=>r.w===4),
+/* ─── KEYWORD COLOR MAP ─── */
+const KW_COLOR_MAP = {
+  '두피':'#2da882','샴푸추천':'#fbbf24','탈모샴푸':'#60a5fa','샴푸':'#f0a500',
+  '탈모':'#1a7a5e','비듬':'#ff9f40','머리냄새':'#a78bfa','두피각질':'#fb923c',
+  '두피가려움':'#34d399','머리가려움':'#f472b6','원형탈모':'#6c63ff',
+  '산후탈모':'#fb7185','여성탈모':'#c084fc','지성두피':'#22d3ee','건성두피':'#818cf8',
+  '두피케어':'#10b981','두피관리':'#3b82f6','지루성두피염':'#00b4d8',
+  '두피트러블':'#f87171','정수리탈모':'#e05252','M자탈모':'#20c997',
+  '스트레스탈모':'#fb923c','탈모예방':'#84cc16','출산탈모':'#ec4899',
+  '머리카락빠짐':'#14b8a6','새치':'#94a3b8','모발케어':'#8b5cf6'
 };
+const KW_ORDER = ['두피','샴푸추천','탈모샴푸','샴푸','탈모','비듬','머리냄새',
+  '두피각질','두피가려움','머리가려움','원형탈모','산후탈모','여성탈모',
+  '지성두피','건성두피','두피케어','두피관리','지루성두피염','두피트러블',
+  '정수리탈모','M자탈모','스트레스탈모','탈모예방','출산탈모','머리카락빠짐','새치','모발케어'];
 
-const WEEKS = [
-  {label:'1주차\n7/1~7',   data: RAW_7.filter(r=>r.w===1)},
-  {label:'2주차\n7/8~14',  data: RAW_7.filter(r=>r.w===2)},
-  {label:'3주차\n7/15~21', data: RAW_7.filter(r=>r.w===3)},
-  {label:'4주차+\n7/22~',  data: RAW_7.filter(r=>r.w===4)},
-];
+/* 5~6월 집계 (시트 미포함 — 고정값) */
+const RAW_56 = [{d:'5~6월',c:64,rev:38,a:44,ad:0,v:3387,iss:'',w:0}];
+
+let RAW=[], KW_TOTALS=[], RAW_7=[], RAW_8=[];
+let MONTH_DATA={'56':RAW_56,'7':[],'8':[],'all':RAW_56};
+let PERIODS_7={all:[],week1:[],week2:[],week3:[],week4:[]};
+let WEEKS=[];
 
 let currentMonth  = '7';
 let currentPeriod = 'all';
 let trendChart, pieChart, kwBarChart, weekChart;
+
+/* ─── CSV PARSER ─── */
+function parseCSV(text) {
+  return text.trim().split('\n').map(line => {
+    const fields=[]; let cur='', inQ=false;
+    for (const ch of line) {
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){fields.push(cur);cur='';}
+      else{cur+=ch;}
+    }
+    fields.push(cur);
+    return fields;
+  });
+}
+function toNum(s){return parseInt((s||'0').replace(/,/g,'').trim())||0;}
+function getWeek(day){return day<=7?1:day<=14?2:day<=21?3:4;}
+
+/* ─── FETCH SHEET ─── */
+async function loadSheetData() {
+  const SSID='1MfuR70yvEoFx53E3Z6ZTjmQoKye-hmSa6wCkIQojUEY';
+  const GID='383461349';
+  const url=`https://docs.google.com/spreadsheets/d/${SSID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('시트 접근 실패 ('+res.status+')');
+  const rows=parseCSV(await res.text());
+
+  // Row 2 (index 2) = 키워드별 합계 → KW_TOTALS
+  const tot=rows[2];
+  KW_TOTALS=KW_ORDER
+    .map((kw,i)=>({kw, c:toNum(tot[i+1]), color:KW_COLOR_MAP[kw]||'#94a3b8'}))
+    .filter(k=>k.c>0)
+    .sort((a,b)=>b.c-a.c);
+
+  const today=new Date(); today.setHours(23,59,59,999);
+
+  // Rows 3+ = 일자별 데이터
+  RAW=[];
+  for(let i=3;i<rows.length;i++){
+    const r=rows[i];
+    const m=r[0].match(/(\d{4})\.\s*(\d+)\.\s*(\d+)/);
+    if(!m) continue;
+    const [,yr,mo,dy]=m.map(Number);
+    if(new Date(yr,mo-1,dy)>today) continue;
+    const c=toNum(r[28]),rev=toNum(r[29]),a=toNum(r[30]),ad=toNum(r[31]),v=toNum(r[32]),iss=(r[35]||'').trim();
+    const daysAgo=(today-new Date(yr,mo-1,dy))/86400000;
+    // 데이터 없는 날은 최근 3일만 포함 (빈 날짜 표시)
+    if(c===0&&a===0&&v===0&&iss===''&&daysAgo>2) continue;
+    RAW.push({d:`${mo}/${dy}`,c,rev,a,ad,v,iss,w:getWeek(dy),mon:mo});
+  }
+
+  RAW_7=RAW.filter(r=>r.mon===7);
+  RAW_8=RAW.filter(r=>r.mon===8);
+
+  MONTH_DATA={'56':RAW_56,'7':RAW_7,'8':RAW_8,'all':[...RAW_56,...RAW_7,...RAW_8]};
+  PERIODS_7={
+    all:  RAW_7,
+    week1:RAW_7.filter(r=>r.w===1),
+    week2:RAW_7.filter(r=>r.w===2),
+    week3:RAW_7.filter(r=>r.w===3),
+    week4:RAW_7.filter(r=>r.w===4),
+  };
+  WEEKS=[
+    {label:'1주차\n7/1~7',   data:RAW_7.filter(r=>r.w===1)},
+    {label:'2주차\n7/8~14',  data:RAW_7.filter(r=>r.w===2)},
+    {label:'3주차\n7/15~21', data:RAW_7.filter(r=>r.w===3)},
+    {label:'4주차+\n7/22~',  data:RAW_7.filter(r=>r.w===4)},
+  ];
+
+  // 8월 데이터 있으면 자동으로 8월 탭 활성화
+  if(RAW_8.some(r=>r.c>0||r.a>0||r.v>0)){
+    currentMonth='8';
+    document.querySelectorAll('.month-btn').forEach(b=>{
+      b.classList.remove('active','bg-brand','text-white','border-brand');
+      b.classList.add('border-slate-200','text-slate-500');
+    });
+    const b8=document.querySelector('[data-month="8"]');
+    if(b8){b8.classList.add('active','bg-brand','text-white','border-brand');b8.classList.remove('border-slate-200','text-slate-500');}
+    document.getElementById('week-row').style.display='none';
+  }
+}
 
 function sum(arr, key) { return arr.reduce((s,r)=>s+(r[key]||0), 0); }
 
@@ -593,19 +627,25 @@ function getCurrentData() {
 
 function updateKPIs(data) {
   const c  = sum(data,'c');
+  const rev= sum(data,'rev');
   const a  = sum(data,'a');
   const ad = sum(data,'ad');
   const v  = sum(data,'v');
   document.getElementById('kpi-c').textContent   = c.toLocaleString();
-  document.getElementById('kpi-rev').textContent = currentMonth==='56' ? '38' : Math.round(c*0.541).toLocaleString();
+  document.getElementById('kpi-rev').textContent = rev>0 ? rev.toLocaleString() : Math.round(c*0.541).toLocaleString();
   document.getElementById('kpi-a').textContent   = a.toLocaleString();
   document.getElementById('kpi-ad').textContent  = ad||'-';
   document.getElementById('kpi-v').textContent   = v.toLocaleString();
-  const monthLabel = {'56':'5~6월','7':'7월','8':'8월','all':'전체'}[currentMonth];
-  document.getElementById('filter-label').textContent =
+  // 퍼널 수치 업데이트
+  const revVal=rev>0?rev:Math.round(c*0.541);
+  const el_c=document.getElementById('funnel-c-val'); if(el_c) el_c.textContent=c.toLocaleString()+'건';
+  const el_r=document.getElementById('funnel-rev-val'); if(el_r) el_r.textContent=revVal.toLocaleString()+'건';
+  const el_a=document.getElementById('funnel-a-val'); if(el_a) el_a.textContent=a.toLocaleString()+'건';
+  const monthLabel={'56':'5~6월','7':'7월','8':'8월','all':'전체'}[currentMonth];
+  document.getElementById('filter-label').textContent=
     currentMonth==='56'
-      ? `5~6월 누적 · ${c}건 수집 · 답변 ${a}건`
-      : `${monthLabel} ${data.length}일 · ${c.toLocaleString()}건 수집 · 답변 ${a}건`;
+      ?`5~6월 누적 · ${c}건 수집 · 답변 ${a}건`
+      :`${monthLabel} ${data.length}일 · ${c.toLocaleString()}건 수집 · 답변 ${a}건`;
 }
 
 function buildTrendChart(data) {
@@ -848,14 +888,28 @@ document.getElementById('kw-filter').addEventListener('change', e=>{
 });
 
 /* ─── INIT ─── */
-const now = new Date();
-document.getElementById('updated-time').textContent = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} 기준`;
-document.getElementById('footer-date').textContent = `데이터 기준일: 2026. 8. 1 · 키워드카운팅 시트 실시간 확인`;
-
-render();
-buildPieChart();
-buildKwBar();
-buildWeekChart();
+(async()=>{
+  const loader=document.getElementById('loader');
+  try {
+    await loadSheetData();
+    loader.style.display='none';
+    const now=new Date();
+    document.getElementById('updated-time').textContent=
+      `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} 기준`;
+    document.getElementById('footer-date').textContent=
+      `데이터 기준일: ${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()} · 키워드카운팅 시트 실시간 연동`;
+    render();
+    buildPieChart();
+    buildKwBar();
+    buildWeekChart();
+  } catch(e) {
+    loader.innerHTML=`<div class="text-center p-8">
+      <p class="text-rose-600 font-bold text-sm mb-2">시트 로드 실패: ${e.message}</p>
+      <p class="text-xs text-slate-400 mb-4">구글 시트 공개 설정(링크 공유 → 뷰어)을 확인하고 새로고침하세요</p>
+      <button onclick="location.reload()" class="text-xs bg-brand text-white px-4 py-2 rounded-full font-bold">새로고침</button>
+    </div>`;
+  }
+})();
 </script>
 </body>
 </html>
