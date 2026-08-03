@@ -592,34 +592,66 @@ async function loadSheetData() {
   const kwCols = cols.slice(1, COL_C < 0 ? cols.length : COL_C);
 
   // 셀 값 헬퍼
-  const getV   = (row, idx) => row.c[idx]?.v ?? null;
-  const getNum = (row, idx) => { const v=getV(row,idx); return typeof v==='number'?Math.round(v):(parseInt(String(v||'0').replace(/,/g,''))||0); };
-  const getStr = (row, idx) => String(getV(row,idx)??'').trim();
+  const getV   = (row, idx) => row.c?.[idx]?.v ?? null;
+  const getF   = (row, idx) => row.c?.[idx]?.f ?? null;  // 포맷된 표시값
+  const getNum = (row, idx) => {
+    const v = getV(row, idx);
+    return typeof v === 'number' ? Math.round(v) : (parseInt(String(v||'0').replace(/,/g,''))||0);
+  };
+  const getStr = (row, idx) => {
+    const v = getV(row, idx);
+    if (v === null || v === undefined) return '';
+    // gviz 날짜 셀은 "Date(2026,6,1)" 형식(월 0-indexed) → 포맷된 f값 사용
+    if (typeof v === 'string' && v.startsWith('Date(')) {
+      return (getF(row, idx) || '').trim();
+    }
+    return String(v).trim();
+  };
 
-  // rows[0]=평균행, rows[1]=합계행, rows[2+]=일자별 데이터
-  const totRow = rows[1];
+  // 날짜 파싱 — "2026. 7. 1" 또는 "Date(2026,6,1)" 모두 처리
+  const parseRowDate = (row) => {
+    const v = getV(row, 0);
+    if (v === null || v === undefined) return null;
+    // Date(year,month0indexed,day) 형식
+    if (typeof v === 'string') {
+      const dm = v.match(/Date\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (dm) return {yr:+dm[1], mo:+dm[2]+1, dy:+dm[3]};
+    }
+    // "2026. 7. 1" 형식 (문자열 셀) 또는 f(포맷값) 사용
+    const s = (typeof v === 'string' ? v : (getF(row,0)||'')).trim();
+    const m = s.match(/(\d{4})\.\s*(\d+)\.\s*(\d+)/);
+    if (m) return {yr:+m[1], mo:+m[2], dy:+m[3]};
+    return null;
+  };
+
+  // 전체 rows를 스캔: 날짜 있으면 daily, 없으면 summary
+  let totRow = null;
+  let summaryCount = 0;
+  const today=new Date(); today.setHours(23,59,59,999);
+  RAW=[];
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];
+    const dt = parseRowDate(row);
+    if(!dt){
+      // summary 행 (평균/합계): 두 번째 summary를 합계로 사용
+      summaryCount++;
+      if(summaryCount===2) totRow=row;
+      continue;
+    }
+    if(new Date(dt.yr,dt.mo-1,dt.dy)>today) continue;
+    const c=getNum(row,COL_C), rev=getNum(row,COL_REV), a=getNum(row,COL_A),
+          ad=getNum(row,COL_AD), v=getNum(row,COL_V), iss=getStr(row,COL_ISS);
+    const daysAgo=(today-new Date(dt.yr,dt.mo-1,dt.dy))/86400000;
+    if(c===0&&a===0&&v===0&&iss===''&&daysAgo>2) continue;
+    RAW.push({d:`${dt.mo}/${dt.dy}`,c,rev,a,ad,v,iss,w:getWeek(dt.dy),mon:dt.mo});
+  }
+
   if(totRow) {
     KW_TOTALS = kwCols.map((col,i) => ({
       kw:    col.label.trim(),
       c:     getNum(totRow, i+1),
       color: KW_COLOR_MAP[col.label.trim()] || '#94a3b8'
     })).filter(k=>k.c>0).sort((a,b)=>b.c-a.c);
-  }
-
-  const today=new Date(); today.setHours(23,59,59,999);
-  RAW=[];
-  for(let i=2;i<rows.length;i++){
-    const row=rows[i];
-    const dateRaw=getStr(row,0);
-    const m=dateRaw.match(/(\d{4})\.\s*(\d+)\.\s*(\d+)/);
-    if(!m) continue;
-    const [,yr,mo,dy]=m.map(Number);
-    if(new Date(yr,mo-1,dy)>today) continue;
-    const c=getNum(row,COL_C), rev=getNum(row,COL_REV), a=getNum(row,COL_A),
-          ad=getNum(row,COL_AD), v=getNum(row,COL_V), iss=getStr(row,COL_ISS);
-    const daysAgo=(today-new Date(yr,mo-1,dy))/86400000;
-    if(c===0&&a===0&&v===0&&iss===''&&daysAgo>2) continue;
-    RAW.push({d:`${mo}/${dy}`,c,rev,a,ad,v,iss,w:getWeek(dy),mon:mo});
   }
 
   RAW_7=RAW.filter(r=>r.mon===7);
